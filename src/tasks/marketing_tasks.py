@@ -44,7 +44,9 @@ class MarketingTasks:
         - Specific demographics most affected
 
         4. TEEWIZ OPPORTUNITIES
-        - 5-10 specific t-shirt concept angles
+        - 5-10 specific VISUAL t-shirt concept angles (not just text)
+        - Focus on imagery, symbols, visual metaphors that work on apparel
+        - Consider meme formats, iconic imagery, visual jokes
         - Target audience for each concept
         - Viral potential assessment
 
@@ -66,10 +68,13 @@ class MarketingTasks:
         create multi-platform marketing content for TeeWiz that directly responds to the findings.
 
         You must produce:
-        1. T-SHIRT CONCEPTS (10 ideas)
-        - Clever, original slogans that aren't cringe
-        - Visual descriptions if relevant
-        - Target audience for each
+        1. T-SHIRT CONCEPTS (10 ideas for FRONT-PRINT ONLY designs)
+        - Focus on VISUAL/GRAPHIC designs, not just text
+        - Include detailed visual descriptions (what images, illustrations, graphics)
+        - Combine clever text WITH visual elements
+        - Remember: DTG printing on front only, full-color capable
+        - Target audience for each design
+        - Think: album art parodies, meme formats, pop culture mashups, illustrated concepts
 
         2. SOCIAL MEDIA CONTENT
         - 5 Twitter/X posts (viral potential)
@@ -89,7 +94,7 @@ class MarketingTasks:
         expected_output = """Complete marketing content package:
 
         T-SHIRT CONCEPTS:
-        [10 detailed concepts with slogans and target audiences]
+        [10 detailed VISUAL designs with graphics, illustrations, and text combinations for front-print only]
 
         SOCIAL MEDIA POSTS:
         Twitter/X: [5 posts with engagement hooks]
@@ -216,6 +221,66 @@ class MarketingTasks:
         - Shows how you contribute to the crew
         - Includes specific examples
         - Leaves a memorable impression"""
+
+        return Task(
+            description=description,
+            expected_output=expected_output,
+            agent=agent
+        )
+
+    @staticmethod
+    def create_final_content_task(agent, context: str = None) -> Task:
+        """Create a task for the Cynical Content Architect to generate FINAL optimized content."""
+
+        description = f"""Based on ALL previous analysis:
+        1. The trend analysis from the philosopher
+        2. Your initial content creation
+        3. The SEO/optimization recommendations from the optimizer
+
+        Create the FINAL, OPTIMIZED version of the marketing content{' for: ' + context if context else ''}.
+
+        You must produce the ULTIMATE version that incorporates:
+        - All the deep insights from the trend analysis
+        - Your creative content ideas
+        - The SEO optimizations and conversion improvements suggested
+
+        FINAL DELIVERABLES:
+        1. T-SHIRT CONCEPTS (10 OPTIMIZED designs for FRONT-PRINT ONLY)
+        - Visual/graphic designs with SEO-friendly names
+        - Detailed visual descriptions optimized for searchability
+        - Clear target audience and keywords for each design
+        - Conversion-focused descriptions
+
+        2. SOCIAL MEDIA CONTENT (OPTIMIZED)
+        - 5 Twitter/X posts with viral hooks and trending hashtags
+        - 3 Instagram captions with optimized hashtags and CTAs
+        - 2 TikTok concepts with trending audio suggestions
+
+        3. BLOG POST (FULLY OPTIMIZED)
+        - SEO-perfect title (50-60 chars) with primary keyword
+        - Compelling introduction with psychological triggers
+        - Full article with optimal header hierarchy
+        - Meta description that drives clicks (150-155 chars)
+        - Natural keyword integration throughout
+        - Strong CTAs placed strategically
+
+        This is your FINAL output - make it perfect, actionable, and ready to convert."""
+
+        expected_output = """FINAL OPTIMIZED MARKETING PACKAGE:
+
+        T-SHIRT DESIGNS:
+        [10 conversion-optimized visual designs with full details]
+
+        SOCIAL MEDIA CONTENT:
+        [Viral-optimized posts across all platforms]
+
+        BLOG POST:
+        [Complete SEO-optimized article ready to publish]
+
+        CONVERSION METRICS:
+        - Expected CTR improvements
+        - Projected conversion rates
+        - Key performance indicators"""
 
         return Task(
             description=description,

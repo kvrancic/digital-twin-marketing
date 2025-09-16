@@ -106,21 +106,25 @@ class MarketingCrew:
         return str(output)
 
     def analyze_trend(self, topic: Optional[str] = None) -> Dict[str, Any]:
-        """Run full trend analysis pipeline."""
+        """Run full marketing pipeline: analyze -> create -> optimize -> refine."""
 
-        # Create tasks for the full pipeline with proper context passing
+        # Step 1: Philosopher analyzes trends
         trend_task = self.tasks.create_trend_analysis_task(self.philosopher, topic)
 
-        # Pass the trend analysis output as context to content generation
+        # Step 2: Architect creates initial content based on analysis
         content_task = self.tasks.create_content_generation_task(self.architect, topic)
-        content_task.context = [trend_task]  # This makes content_task use trend_task's output
+        content_task.context = [trend_task]  # Uses philosopher's analysis
 
-        # Pass the content generation output as context to optimization
+        # Step 3: Optimizer analyzes the content and provides optimization recommendations
         optimize_task = self.tasks.create_optimization_task(self.optimizer)
-        optimize_task.context = [content_task]  # This makes optimize_task use content_task's output
+        optimize_task.context = [content_task]  # Uses architect's content
 
-        # Create crew with full pipeline
-        crew = self.create_crew([trend_task, content_task, optimize_task])
+        # Step 4: Architect creates FINAL content incorporating optimizer's feedback
+        final_content_task = self.tasks.create_final_content_task(self.architect, topic)
+        final_content_task.context = [trend_task, content_task, optimize_task]  # Uses ALL previous outputs
+
+        # Create crew with full 4-step pipeline
+        crew = self.create_crew([trend_task, content_task, optimize_task, final_content_task])
 
         # Execute pipeline
         output = crew.kickoff()
@@ -132,25 +136,34 @@ class MarketingCrew:
         }
 
     def generate_campaign(self, product: str) -> Dict[str, Any]:
-        """Generate a complete marketing campaign for a specific product."""
+        """Generate a complete marketing campaign using 4-step pipeline."""
 
-        # Customize tasks for specific product
+        # Step 1: Philosopher analyzes cultural trends for the product
         trend_task = self.tasks.create_trend_analysis_task(
             self.philosopher,
             f"{product} - identify relevant cultural trends"
         )
 
+        # Step 2: Architect creates initial content
         content_task = self.tasks.create_content_generation_task(
             self.architect,
             f"{product} campaign"
         )
-        content_task.context = [trend_task]  # Pass trend analysis to content creation
+        content_task.context = [trend_task]
 
+        # Step 3: Optimizer provides recommendations
         optimize_task = self.tasks.create_optimization_task(self.optimizer)
-        optimize_task.context = [content_task]  # Pass content to optimization
+        optimize_task.context = [content_task]
 
-        # Create crew
-        crew = self.create_crew([trend_task, content_task, optimize_task])
+        # Step 4: Architect creates FINAL optimized content
+        final_content_task = self.tasks.create_final_content_task(
+            self.architect,
+            f"{product} campaign"
+        )
+        final_content_task.context = [trend_task, content_task, optimize_task]
+
+        # Create crew with full 4-step pipeline
+        crew = self.create_crew([trend_task, content_task, optimize_task, final_content_task])
 
         # Execute campaign generation
         output = crew.kickoff()

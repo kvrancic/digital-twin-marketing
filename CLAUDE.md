@@ -26,9 +26,7 @@
 ### Karlo's Personality Traits to Embed
 - **Sarcasm without cringe** - Intelligent humor, not forced
 - **Basketball metaphors** - From his serious playing background
-- **Croatian references** - "Draži mi je put nego sama destinacija"
 - **Psychology/sociology insights** - Deep understanding of human behavior
-- **Journey over destination** philosophy
 
 ## 📋 HOMEWORK REQUIREMENTS CHECKLIST
 - [ ] Define agents with roles, goals, backstories
