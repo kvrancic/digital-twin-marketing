@@ -10,7 +10,8 @@
       "Bash(python:*)",
       "Bash(zip:*)",
       "Bash(timeout 30 python main.py about)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

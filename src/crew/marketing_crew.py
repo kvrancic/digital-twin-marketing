@@ -126,13 +126,20 @@ class MarketingCrew:
         # Create crew with full 4-step pipeline
         crew = self.create_crew([trend_task, content_task, optimize_task, final_content_task])
 
-        # Execute pipeline
-        output = crew.kickoff()
+        # Execute pipeline and capture intermediary outputs
+        result = crew.kickoff()
+
+        # Collect all task outputs for saving
+        intermediary_outputs = {}
+        for i, task in enumerate(crew.tasks):
+            agent_name = task.agent.role.replace(" ", "_").replace("&", "and").lower()
+            intermediary_outputs[f"{i+1}_{agent_name}"] = str(task.output) if task.output else ""
 
         return {
-            "analysis": str(output),
+            "analysis": str(result),
             "topic": topic or "current trends",
-            "status": "completed"
+            "status": "completed",
+            "intermediary_outputs": intermediary_outputs
         }
 
     def generate_campaign(self, product: str) -> Dict[str, Any]:
@@ -166,12 +173,19 @@ class MarketingCrew:
         crew = self.create_crew([trend_task, content_task, optimize_task, final_content_task])
 
         # Execute campaign generation
-        output = crew.kickoff()
+        result = crew.kickoff()
+
+        # Collect all task outputs for saving
+        intermediary_outputs = {}
+        for i, task in enumerate(crew.tasks):
+            agent_name = task.agent.role.replace(" ", "_").replace("&", "and").lower()
+            intermediary_outputs[f"{i+1}_{agent_name}"] = str(task.output) if task.output else ""
 
         return {
-            "campaign": str(output),
+            "campaign": str(result),
             "product": product,
-            "status": "completed"
+            "status": "completed",
+            "intermediary_outputs": intermediary_outputs
         }
 
     def quick_analysis(self, query: str) -> str:

@@ -192,14 +192,28 @@ def analyze(topic: Optional[str]):
             )
             console.print(panel)
 
-            # Save to file
-            output_file = f"outputs/analysis_{topic.replace(' ', '_')}.md"
-            os.makedirs("outputs", exist_ok=True)
-            with open(output_file, "w") as f:
-                f.write(f"# Marketing Analysis: {topic}\n\n")
+            # Create output directory structure
+            topic_dir = f"outputs/{topic.replace(' ', '_').lower()}"
+            intermediary_dir = f"{topic_dir}/intermediary_outputs"
+            os.makedirs(intermediary_dir, exist_ok=True)
+
+            # Save final output
+            final_output_file = f"{topic_dir}/final_marketing_package.md"
+            with open(final_output_file, "w") as f:
+                f.write(f"# Final Marketing Package: {topic}\n\n")
                 f.write(str(result.get("analysis", "")))
 
-            console.print(f"\n[green]✓ Analysis saved to {output_file}[/green]")
+            # Save intermediary outputs if available
+            if "intermediary_outputs" in result:
+                for filename, content in result.get("intermediary_outputs", {}).items():
+                    intermediary_file = f"{intermediary_dir}/{filename}.md"
+                    with open(intermediary_file, "w") as f:
+                        f.write(f"# {filename.replace('_', ' ').title()}\n\n")
+                        f.write(content)
+
+            console.print(f"\n[green]✓ Analysis saved to {topic_dir}/[/green]")
+            console.print(f"  [cyan]→ Final package: final_marketing_package.md[/cyan]")
+            console.print(f"  [cyan]→ Intermediary outputs: intermediary_outputs/[/cyan]")
 
         except Exception as e:
             progress.stop()
@@ -240,14 +254,28 @@ def campaign(product: Optional[str]):
             )
             console.print(panel)
 
-            # Save to file
-            output_file = f"outputs/campaign_{product.replace(' ', '_')}.md"
-            os.makedirs("outputs", exist_ok=True)
-            with open(output_file, "w") as f:
-                f.write(f"# Marketing Campaign: {product}\n\n")
+            # Create output directory structure
+            product_dir = f"outputs/{product.replace(' ', '_').lower()}_campaign"
+            intermediary_dir = f"{product_dir}/intermediary_outputs"
+            os.makedirs(intermediary_dir, exist_ok=True)
+
+            # Save final output
+            final_output_file = f"{product_dir}/final_marketing_package.md"
+            with open(final_output_file, "w") as f:
+                f.write(f"# Final Marketing Campaign: {product}\n\n")
                 f.write(str(result.get("campaign", "")))
 
-            console.print(f"\n[green]✓ Campaign saved to {output_file}[/green]")
+            # Save intermediary outputs if available
+            if "intermediary_outputs" in result:
+                for filename, content in result.get("intermediary_outputs", {}).items():
+                    intermediary_file = f"{intermediary_dir}/{filename}.md"
+                    with open(intermediary_file, "w") as f:
+                        f.write(f"# {filename.replace('_', ' ').title()}\n\n")
+                        f.write(content)
+
+            console.print(f"\n[green]✓ Campaign saved to {product_dir}/[/green]")
+            console.print(f"  [cyan]→ Final package: final_marketing_package.md[/cyan]")
+            console.print(f"  [cyan]→ Intermediary outputs: intermediary_outputs/[/cyan]")
 
         except Exception as e:
             progress.stop()
