@@ -62,8 +62,8 @@ class MarketingTasks:
     def create_content_generation_task(agent, context: str = None) -> Task:
         """Create a task for the Cynical Content Architect to generate content."""
 
-        description = f"""Based on the trend analysis insights{' about: ' + context if context else ''},
-        create multi-platform marketing content for TeeWiz.
+        description = f"""Based on the trend analysis insights from the previous task{' about: ' + context if context else ''},
+        create multi-platform marketing content for TeeWiz that directly responds to the findings.
 
         You must produce:
         1. T-SHIRT CONCEPTS (10 ideas)
@@ -122,7 +122,7 @@ class MarketingTasks:
     def create_optimization_task(agent, content: str = None) -> Task:
         """Create a task for the Brutalist Optimizer to optimize content."""
 
-        description = f"""Analyze and optimize the marketing content for maximum
+        description = f"""Analyze and optimize the marketing content created in the previous task for maximum
         search visibility and conversion potential.
 
         Your optimization must include:

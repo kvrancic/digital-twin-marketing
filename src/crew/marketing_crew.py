@@ -108,10 +108,16 @@ class MarketingCrew:
     def analyze_trend(self, topic: Optional[str] = None) -> Dict[str, Any]:
         """Run full trend analysis pipeline."""
 
-        # Create tasks for the full pipeline
+        # Create tasks for the full pipeline with proper context passing
         trend_task = self.tasks.create_trend_analysis_task(self.philosopher, topic)
+
+        # Pass the trend analysis output as context to content generation
         content_task = self.tasks.create_content_generation_task(self.architect, topic)
+        content_task.context = [trend_task]  # This makes content_task use trend_task's output
+
+        # Pass the content generation output as context to optimization
         optimize_task = self.tasks.create_optimization_task(self.optimizer)
+        optimize_task.context = [content_task]  # This makes optimize_task use content_task's output
 
         # Create crew with full pipeline
         crew = self.create_crew([trend_task, content_task, optimize_task])
@@ -138,8 +144,10 @@ class MarketingCrew:
             self.architect,
             f"{product} campaign"
         )
+        content_task.context = [trend_task]  # Pass trend analysis to content creation
 
         optimize_task = self.tasks.create_optimization_task(self.optimizer)
+        optimize_task.context = [content_task]  # Pass content to optimization
 
         # Create crew
         crew = self.create_crew([trend_task, content_task, optimize_task])
