@@ -85,16 +85,18 @@ def introduce():
         task = progress.add_task("[cyan]Agents preparing introductions...", total=None)
 
         try:
-            twin = KarloDigitalTwin()
-            results = twin.introduce()
+            # Import agents for hardcoded introductions
+            from src.agents.philosopher import ZeitgeistPhilosopher
+            from src.agents.architect import CynicalContentArchitect
+            from src.agents.optimizer import BrutalistOptimizer
 
             progress.stop()
 
-            # Display each introduction
+            # Use hardcoded introductions directly
             for agent_name, intro in [
-                ("Zeitgeist Philosopher", results.get("philosopher", "")),
-                ("Cynical Content Architect", results.get("architect", "")),
-                ("Brutalist Optimizer", results.get("optimizer", ""))
+                ("Zeitgeist Philosopher", ZeitgeistPhilosopher().introduce_self()),
+                ("Cynical Content Architect", CynicalContentArchitect().introduce_self()),
+                ("Brutalist Optimizer", BrutalistOptimizer().introduce_self())
             ]:
                 panel = Panel(
                     intro,
@@ -127,17 +129,15 @@ def about():
             twin = KarloDigitalTwin()
 
             # Hardcoded backup in case API fails
-            background = """Karlo Vrančić is a 22-year-old Croatian prodigy currently pursuing dual enrollment
-at Harvard (MS Data Science) and MIT (Deep Learning/AI Agents), having earned three Chancellor's Awards
-in a single year at University of Zagreb - a feat never before accomplished in the university's history.
+            background = """Karlo Vrančić is a 22-year-old student from Croatia pursuing MS degrees at Harvard
+(Data Science) and MIT (Deep Learning/AI Agents), after completing his BS at University of Zagreb where
+he received recognition for research and community contributions.
 
-He co-founded TeeWiz, an AI-powered custom t-shirt platform that democratizes fashion design with
-"from idea to order in less than 60 seconds" promise, achieving 70% conversion rates in beta testing
-while reducing environmental impact by 90% through print-on-demand technology.
+He co-founded TeeWiz, an AI-powered custom t-shirt platform that simplifies fashion design, allowing users
+to create custom designs quickly while using print-on-demand technology to reduce environmental impact.
 
-Living by his motto "Draži mi je put nego sama destinacija" (I prefer the journey over the destination),
-Karlo combines technical brilliance with creative vision, transforming his basketball-court persistence
-into entrepreneurial success that bridges Silicon Valley innovation with Croatian grit."""
+With a background in basketball and a philosophy focused on valuing the journey over the destination,
+Karlo works on combining technical skills with creative problem-solving in his entrepreneurial ventures."""
 
             try:
                 background = twin.about_me()

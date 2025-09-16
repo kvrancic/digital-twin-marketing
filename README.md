@@ -1,6 +1,6 @@
-# 🧠 Karlo's Digital Twin - MIT AI Studio Project
+# 🧠 Digital Twin - MIT AI Studio Project
 
-> **A CrewAI-powered marketing intelligence system that embodies the personality and expertise of Karlo Vrančić**
+> **A CrewAI-powered marketing intelligence system for TeeWiz**
 
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![CrewAI](https://img.shields.io/badge/CrewAI-Latest-green.svg)](https://github.com/crewAIInc/crewAI)
@@ -9,7 +9,7 @@
 
 ## 🎯 Project Overview
 
-This digital twin represents Karlo Vrančić, a Harvard/MIT MS student and CEO of TeeWiz, through three distinct AI agents that collaborate to generate marketing insights and content. Built as a homework assignment for MIT AI Studio, this system demonstrates advanced multi-agent orchestration using CrewAI.
+This is a homework assignment for MIT AI Studio that demonstrates multi-agent orchestration using CrewAI. The system uses three AI agents working together to generate marketing insights and content for TeeWiz, a custom t-shirt platform.
 
 
 ## 🤖 The Marketing Crew
@@ -240,13 +240,7 @@ python main.py about
 
 ## 👨‍💻 About the Creator
 
-**Karlo Vrančić** - Harvard/MIT MS Student, TeeWiz CEO, and the only student to win three Chancellor's Awards in a single year at University of Zagreb.
-
-This digital twin embodies Karlo's:
-- Technical brilliance from CERN and EPFL
-- Entrepreneurial vision from TeeWiz
-- Croatian wisdom and basketball-court persistence
-- Unique blend of academic excellence and street-smart humor
+**Karlo Vrančić** - MS Student at Harvard/MIT and co-founder of TeeWiz.
 
 ## 📄 License
 
@@ -261,6 +255,4 @@ MIT License - Feel free to use this code for educational purposes.
 
 ---
 
-*"The journey matters more than the destination - but in this case, the destination is a perfect homework score."* 🎯
-
-**Built with ❤️ and sarcasm by Karlo's Digital Twin**
+**MIT AI Studio Homework Assignment**
