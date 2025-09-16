@@ -57,8 +57,7 @@ class MarketingCrew:
         self.crew = Crew(
             agents=[self.philosopher, self.architect, self.optimizer],
             tasks=tasks,
-            process=Process.hierarchical,  # Philosopher leads
-            manager_agent=self.philosopher,  # Philosopher manages the flow
+            process=Process.sequential,  # Sequential process to avoid hierarchical issues
             verbose=Config.CREW_VERBOSE,
             memory=True,  # Enable memory for better context
             cache=True,   # Cache results for efficiency
@@ -160,7 +159,7 @@ class MarketingCrew:
         # Single task for philosopher
         task = self.tasks.create_trend_analysis_task(self.philosopher, query)
 
-        # Create minimal crew
+        # Create minimal crew - use sequential for single agent
         crew = Crew(
             agents=[self.philosopher],
             tasks=[task],

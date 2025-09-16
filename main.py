@@ -312,7 +312,7 @@ def info():
     console.print(f"  Lite Model (simple tasks): [yellow]{Config.LITE_MODEL}[/yellow]")
     console.print(f"  Pro Model (complex tasks): [yellow]{Config.PRO_MODEL}[/yellow]")
     console.print(f"  API: [yellow]OpenRouter[/yellow]")
-    console.print(f"  Crew Mode: [yellow]Hierarchical (Philosopher leads)[/yellow]")
+    console.print(f"  Crew Mode: [yellow]Sequential (Philosopher → Architect → Optimizer)[/yellow]")
 
     console.print("\n[bold cyan]📊 Model Usage:[/bold cyan]")
     console.print(f"  [green]Lite Model[/green] → introduce, about")
