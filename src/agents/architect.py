@@ -21,11 +21,11 @@ class CynicalContentArchitect:
     has more cultural impact than a 300-page novel.
     """
 
-    def create(self) -> Agent:
+    def create(self, use_lite: bool = False) -> Agent:
         """Create and return the Cynical Content Architect agent."""
 
         # Configure LLM with OpenRouter
-        llm_config = Config.get_llm_config()
+        llm_config = Config.get_llm_config(use_lite=use_lite)
 
         return Agent(
             role="Creative Director & Multi-platform Writer",

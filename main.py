@@ -309,9 +309,14 @@ def info():
         console.print(f"  [green]{cmd:12}[/green] - {desc}")
 
     console.print("\n[bold cyan]🔧 Configuration:[/bold cyan]")
-    console.print(f"  Model: [yellow]{Config.OPENROUTER_MODEL}[/yellow]")
+    console.print(f"  Lite Model (simple tasks): [yellow]{Config.LITE_MODEL}[/yellow]")
+    console.print(f"  Pro Model (complex tasks): [yellow]{Config.PRO_MODEL}[/yellow]")
     console.print(f"  API: [yellow]OpenRouter[/yellow]")
     console.print(f"  Crew Mode: [yellow]Hierarchical (Philosopher leads)[/yellow]")
+
+    console.print("\n[bold cyan]📊 Model Usage:[/bold cyan]")
+    console.print(f"  [green]Lite Model[/green] → introduce, about")
+    console.print(f"  [green]Pro Model[/green] → analyze, campaign, trend")
 
 
 @cli.command()

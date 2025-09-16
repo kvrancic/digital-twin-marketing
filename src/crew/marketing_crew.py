@@ -22,16 +22,23 @@ class MarketingCrew:
     Implements hierarchical process: Philosopher → Architect → Optimizer
     """
 
-    def __init__(self):
-        """Initialize the marketing crew with all three agents."""
+    def __init__(self, use_lite: bool = False):
+        """Initialize the marketing crew with all three agents.
+
+        Args:
+            use_lite: If True, use lite model for all agents (for simple tasks)
+        """
 
         # Validate configuration
         Config.validate()
 
-        # Create agents
-        self.philosopher = ZeitgeistPhilosopher().create()
-        self.architect = CynicalContentArchitect().create()
-        self.optimizer = BrutalistOptimizer().create()
+        # Store model preference
+        self.use_lite = use_lite
+
+        # Create agents with appropriate model
+        self.philosopher = ZeitgeistPhilosopher().create(use_lite=use_lite)
+        self.architect = CynicalContentArchitect().create(use_lite=use_lite)
+        self.optimizer = BrutalistOptimizer().create(use_lite=use_lite)
 
         # Task factory
         self.tasks = MarketingTasks()
@@ -166,11 +173,15 @@ class KarloDigitalTwin:
     """
     The complete digital twin of Karlo Vrančić.
     Combines all agents into a cohesive marketing intelligence system.
+    Uses lite model for simple tasks and pro model for complex analysis.
     """
 
     def __init__(self):
         """Initialize the digital twin."""
-        self.crew = MarketingCrew()
+        # Create two crews: one for lite tasks, one for pro tasks
+        self.lite_crew = MarketingCrew(use_lite=True)  # For simple tasks
+        self.pro_crew = MarketingCrew(use_lite=False)  # For complex tasks
+
         self.context = {
             "name": "Karlo Vrančić",
             "role": "Harvard/MIT MS Student & TeeWiz CEO",
@@ -179,21 +190,21 @@ class KarloDigitalTwin:
         }
 
     def introduce(self) -> Dict[str, str]:
-        """Full introduction from all agents."""
-        return self.crew.run_introduction()
+        """Full introduction from all agents. Uses LITE model."""
+        return self.lite_crew.run_introduction()
 
     def analyze(self, topic: Optional[str] = None) -> Dict[str, Any]:
-        """Analyze trends and generate marketing insights."""
-        return self.crew.analyze_trend(topic)
+        """Analyze trends and generate marketing insights. Uses PRO model."""
+        return self.pro_crew.analyze_trend(topic)
 
     def campaign(self, product: str) -> Dict[str, Any]:
-        """Generate full marketing campaign."""
-        return self.crew.generate_campaign(product)
+        """Generate full marketing campaign. Uses PRO model."""
+        return self.pro_crew.generate_campaign(product)
 
     def about_me(self) -> str:
-        """Explain Karlo's background."""
-        return self.crew.explain_background()
+        """Explain Karlo's background. Uses LITE model."""
+        return self.lite_crew.explain_background()
 
     def quick_take(self, query: str) -> str:
-        """Get a quick take on something."""
-        return self.crew.quick_analysis(query)
+        """Get a quick take on something. Uses PRO model."""
+        return self.pro_crew.quick_analysis(query)

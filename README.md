@@ -11,8 +11,6 @@
 
 This digital twin represents Karlo Vrančić, a Harvard/MIT MS student and CEO of TeeWiz, through three distinct AI agents that collaborate to generate marketing insights and content. Built as a homework assignment for MIT AI Studio, this system demonstrates advanced multi-agent orchestration using CrewAI.
 
-### The Philosophy
-> "Draži mi je put nego sama destinacija" - I prefer the journey over the destination
 
 ## 🤖 The Marketing Crew
 

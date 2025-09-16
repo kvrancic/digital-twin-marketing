@@ -22,6 +22,10 @@ class Config:
     # Default to GPT-4 Turbo, but can use any OpenRouter model
     OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "openai/gpt-4-turbo")
 
+    # Separate models for different task complexities
+    LITE_MODEL: str = os.getenv("OPENROUTER_LITE_MODEL", "google/gemini-2.0-flash-exp")  # For simple tasks
+    PRO_MODEL: str = os.getenv("OPENROUTER_PRO_MODEL", "google/gemini-2.0-flash-exp")   # For complex tasks
+
     # Optional OpenRouter headers
     YOUR_SITE_URL: Optional[str] = os.getenv("YOUR_SITE_URL", "https://github.com/karlovrancic/digital-twin")
     YOUR_APP_NAME: Optional[str] = os.getenv("YOUR_APP_NAME", "KarloDigitalTwin")
@@ -46,10 +50,17 @@ class Config:
         return True
 
     @classmethod
-    def get_llm_config(cls) -> dict:
-        """Get LLM configuration for CrewAI agents."""
+    def get_llm_config(cls, use_lite: bool = False) -> dict:
+        """
+        Get LLM configuration for CrewAI agents.
+
+        Args:
+            use_lite: If True, use the lite model for simple tasks
+        """
+        model = cls.LITE_MODEL if use_lite else cls.PRO_MODEL
+
         return {
-            "model": cls.OPENROUTER_MODEL,
+            "model": model,
             "api_key": cls.OPENROUTER_API_KEY,
             "base_url": cls.OPENROUTER_API_BASE,
             "default_headers": {

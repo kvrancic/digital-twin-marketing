@@ -21,11 +21,11 @@ class BrutalistOptimizer:
     Finds beauty in clean sitemaps and emotional resonance in 70% conversion rates.
     """
 
-    def create(self) -> Agent:
+    def create(self, use_lite: bool = False) -> Agent:
         """Create and return the Brutalist Optimizer agent."""
 
         # Configure LLM with OpenRouter
-        llm_config = Config.get_llm_config()
+        llm_config = Config.get_llm_config(use_lite=use_lite)
 
         return Agent(
             role="Technical SEO & Conversion Analyst",
