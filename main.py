@@ -33,7 +33,7 @@ def print_header():
 ║                    🧠 KARLO'S DIGITAL TWIN - MIT AI STUDIO 🧠                 ║
 ║                                                                               ║
 ║                    Marketing Intelligence Powered by CrewAI                   ║
-║                 "Draži mi je put nego sama destinacija" 🇭🇷                  ║
+║                       Journey > Destination Philosophy                        ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
     """
     console.print(header, style="bold cyan")

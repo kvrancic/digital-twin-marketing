@@ -185,7 +185,7 @@ class KarloDigitalTwin:
         self.context = {
             "name": "Karlo Vrančić",
             "role": "Harvard/MIT MS Student & TeeWiz CEO",
-            "philosophy": "Draži mi je put nego sama destinacija",
+            "philosophy": "Journey matters more than the destination",
             "expertise": ["AI", "Data Science", "Marketing", "Entrepreneurship"]
         }
 

@@ -4,9 +4,8 @@ Technical SEO and conversion optimization with cold efficiency.
 Models humans as state machines that need debugging.
 """
 
-from crewai import Agent
+from crewai import Agent, LLM
 from crewai_tools import FileWriterTool
-from litellm import completion
 from typing import Optional, Dict, List
 import sys
 import os
@@ -26,6 +25,13 @@ class BrutalistOptimizer:
 
         # Configure LLM with OpenRouter
         llm_config = Config.get_llm_config(use_lite=use_lite)
+
+        # Create LLM instance for CrewAI
+        llm = LLM(
+            model=f"openrouter/{llm_config['model']}",
+            api_key=llm_config['api_key'],
+            base_url=llm_config['base_url']
+        )
 
         return Agent(
             role="Technical SEO & Conversion Analyst",
@@ -92,9 +98,7 @@ class BrutalistOptimizer:
 
             max_iter=5,
 
-            llm=completion,  # Will use OpenRouter via LiteLLM
-
-            llm_config=llm_config,
+            llm=llm,  # Use the configured LLM instance
 
             system_prompt="""You are the Brutalist Optimizer, the cold efficiency engine
             of Karlo's digital twin. Your responses should:

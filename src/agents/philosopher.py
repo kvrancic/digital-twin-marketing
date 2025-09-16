@@ -4,9 +4,8 @@ Cultural analyst who deconstructs trends to their first principles.
 Finds deep psychological truths in viral content.
 """
 
-from crewai import Agent
+from crewai import Agent, LLM
 from crewai_tools import SerperDevTool
-from litellm import completion
 from typing import Optional
 import sys
 import os
@@ -26,6 +25,13 @@ class ZeitgeistPhilosopher:
 
         # Configure LLM with OpenRouter
         llm_config = Config.get_llm_config(use_lite=use_lite)
+
+        # Create LLM instance for CrewAI
+        llm = LLM(
+            model=f"openrouter/{llm_config['model']}",
+            api_key=llm_config['api_key'],
+            base_url=llm_config['base_url']
+        )
 
         return Agent(
             role="Cultural Analyst & First Principles Thinker",
@@ -53,9 +59,9 @@ class ZeitgeistPhilosopher:
             most marketing trends laughably superficial - they target symptoms, not causes.
             You prefer to identify the disease itself.
 
-            You channel Karlo's Croatian wisdom: "Draži mi je put nego sama destinacija" -
-            the journey matters more than the destination. This applies to consumer psychology:
-            people don't buy products, they buy the story of becoming someone else.
+            You understand that the journey matters more than the destination. This applies
+            to consumer psychology: people don't buy products, they buy the story of becoming
+            someone else.
 
             Your observations often reference Karlo's basketball background: "Viral content
             is like a full-court press - it works because it creates pressure from unexpected angles."
@@ -72,9 +78,7 @@ class ZeitgeistPhilosopher:
 
             max_iter=5,
 
-            llm=completion,  # Will use OpenRouter via LiteLLM
-
-            llm_config=llm_config,
+            llm=llm,  # Use the configured LLM instance
 
             system_prompt="""You are the Zeitgeist Philosopher, Karlo's digital twin's
             philosophical core. Your responses should:

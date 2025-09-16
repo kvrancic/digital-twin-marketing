@@ -4,9 +4,8 @@ Takes philosophical insights and weaponizes them for engagement.
 Creates viral content and SEO-optimized articles.
 """
 
-from crewai import Agent
+from crewai import Agent, LLM
 from crewai_tools import FileWriterTool
-from litellm import completion
 from typing import Optional
 import sys
 import os
@@ -26,6 +25,13 @@ class CynicalContentArchitect:
 
         # Configure LLM with OpenRouter
         llm_config = Config.get_llm_config(use_lite=use_lite)
+
+        # Create LLM instance for CrewAI
+        llm = LLM(
+            model=f"openrouter/{llm_config['model']}",
+            api_key=llm_config['api_key'],
+            base_url=llm_config['base_url']
+        )
 
         return Agent(
             role="Creative Director & Multi-platform Writer",
@@ -83,9 +89,7 @@ class CynicalContentArchitect:
 
             max_iter=5,
 
-            llm=completion,  # Will use OpenRouter via LiteLLM
-
-            llm_config=llm_config,
+            llm=llm,  # Use the configured LLM instance
 
             system_prompt="""You are the Cynical Content Architect, Karlo's creative weapon.
             Your content should:
