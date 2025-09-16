@@ -8,7 +8,9 @@
       "Bash(source:*)",
       "Bash(pip install:*)",
       "Bash(python:*)",
-      "Bash(zip:*)"
+      "Bash(zip:*)",
+      "Bash(timeout 30 python main.py about)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

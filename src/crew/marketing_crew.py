@@ -14,6 +14,7 @@ from src.agents.architect import CynicalContentArchitect
 from src.agents.optimizer import BrutalistOptimizer
 from src.tasks.marketing_tasks import MarketingTasks
 from config import Config
+import os
 
 
 class MarketingCrew:
@@ -34,6 +35,10 @@ class MarketingCrew:
 
         # Store model preference
         self.use_lite = use_lite
+
+        # Set environment variable for OpenAI API key (CrewAI fallback)
+        # This prevents CrewAI from complaining about missing OpenAI key
+        os.environ['OPENAI_API_KEY'] = Config.OPENROUTER_API_KEY
 
         # Create agents with appropriate model
         self.philosopher = ZeitgeistPhilosopher().create(use_lite=use_lite)

@@ -23,8 +23,8 @@ class Config:
     OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "openai/gpt-4-turbo")
 
     # Separate models for different task complexities
-    LITE_MODEL: str = os.getenv("OPENROUTER_LITE_MODEL", "google/gemini-2.0-flash-exp")  # For simple tasks
-    PRO_MODEL: str = os.getenv("OPENROUTER_PRO_MODEL", "google/gemini-2.0-flash-exp")   # For complex tasks
+    LITE_MODEL: str = os.getenv("OPENROUTER_LITE_MODEL", "google/gemini-2.5-flash-lite")  # For simple tasks
+    PRO_MODEL: str = os.getenv("OPENROUTER_PRO_MODEL", "google/gemini-2.5-pro")   # For complex tasks
 
     # Optional OpenRouter headers
     YOUR_SITE_URL: Optional[str] = os.getenv("YOUR_SITE_URL", "https://github.com/karlovrancic/digital-twin")
