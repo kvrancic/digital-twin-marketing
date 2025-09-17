@@ -60,3 +60,5 @@ outputs/*.json
 htmlcov/
 .tox/
 .hypothesis/
+
+about-me/
