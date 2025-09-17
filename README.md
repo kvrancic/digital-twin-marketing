@@ -273,7 +273,7 @@ python main.py analyze --topic "test run"
 - **Agent Personas**: Each agent reflects aspects of my personality (sarcasm, psychology insights, engineering mindset)
 - **Task Orchestration**: 4-step pipeline with proper context passing between agents
 - **Web Search Tool**: Integrated Serper API for real-time trend analysis
-- **Test Prompts**: Both "introduce" and "about" commands work as required
+- **Test Prompts**: Both "introduce" and "about" commands work as required (as well as all other more complex commands which were optional)
 - **Output Management**: Structured folder system with intermediary and final outputs
 
 ## 🎓 What I Learned (Homework Requirement)
