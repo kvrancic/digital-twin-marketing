@@ -7,6 +7,8 @@
 [![OpenRouter](https://img.shields.io/badge/LLM-OpenRouter-purple.svg)](https://openrouter.ai)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+Quick note: I also made another project with CrewAI: [Interview Analyzer & Archiver](https://github.com/kvrancic/interview-analyzer-archiver)
+
 ## 🎯 Project Overview
 
 This is a homework assignment for MIT AI Studio that demonstrates advanced multi-agent orchestration using CrewAI. The system uses three AI agents working together in a 4-step pipeline to generate marketing insights and visual t-shirt designs for TeeWiz, a custom t-shirt platform.
@@ -21,6 +23,8 @@ This is a homework assignment for MIT AI Studio that demonstrates advanced multi
 - **Web Search Integration**: Uses Serper API for real-time trend analysis
 
 ## 🤖 The Marketing Crew
+
+**NOTE: All of these agents are made to resemble me, my interests, and my personality in a very exaggerated way.**
 
 ### 1. **The Zeitgeist Philosopher** 🧐
 - **Role**: Cultural Analyst & First Principles Thinker
