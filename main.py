@@ -20,6 +20,7 @@ from typing import Optional
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from src.crew.marketing_crew import KarloDigitalTwin
+from crews.video_crew import VideoGenerationCrew
 from config import Config
 
 # Initialize Rich console for beautiful terminal output
@@ -329,6 +330,7 @@ def info():
         ("about", "Learn about Karlo's background (3 sentences)"),
         ("analyze", "Analyze trends and generate marketing insights"),
         ("campaign", "Create a complete marketing campaign"),
+        ("video", "Generate viral video with scenes and audio"),
         ("trend", "Quick trend analysis"),
         ("info", "Display this information"),
     ]
@@ -345,6 +347,158 @@ def info():
     console.print("\n[bold cyan]📊 Model Usage:[/bold cyan]")
     console.print(f"  [green]Lite Model[/green] → introduce, about")
     console.print(f"  [green]Pro Model[/green] → analyze, campaign, trend")
+
+
+@cli.command()
+@click.option('--topic', '-t', help='Topic or trend for video')
+@click.option('--brief', '-b', help='Custom brief for video generation')
+@click.option('--style', '-s', type=click.Choice(['cinematic', 'funny', 'hybrid']), default='hybrid', help='Video style')
+def video(topic: Optional[str], brief: Optional[str], style: str):
+    """Generate a viral video campaign with scenes, audio, and production plan."""
+    print_header()
+
+    if not topic and not brief:
+        console.print("\n[bold cyan]🎬 Viral Video Generation[/bold cyan]\n")
+        topic = Prompt.ask(
+            "[cyan]What should the video be about?[/cyan]",
+            default="whatever will sell t-shirts today"
+        )
+
+    console.print(f"\n[bold cyan]🎬 Generating Viral Video Campaign[/bold cyan]")
+    if topic:
+        console.print(f"[cyan]Topic: {topic}[/cyan]")
+    if brief:
+        console.print(f"[cyan]Brief: {brief}[/cyan]")
+    console.print(f"[cyan]Style: {style}[/cyan]\n")
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("[cyan]Orchestrating viral video generation...", total=None)
+
+        try:
+            video_crew = VideoGenerationCrew()
+
+            # Update progress messages based on pipeline stages
+            progress.update(task, description="[cyan]Analyzing viral trends...")
+            time.sleep(1)
+
+            progress.update(task, description="[cyan]Creating video concept...")
+            time.sleep(1)
+
+            progress.update(task, description="[cyan]Generating scene descriptions...")
+            time.sleep(1)
+
+            progress.update(task, description="[cyan]Writing audio script...")
+            time.sleep(1)
+
+            progress.update(task, description="[cyan]Optimizing for algorithms...")
+
+            # Generate the video
+            result = video_crew.generate_video(topic=topic or "", user_brief=brief or "")
+
+            progress.stop()
+
+            # Display production summary
+            if result.get("generated_assets"):
+                assets = result["generated_assets"]
+
+                summary_table = Table(title="🎬 Video Production Summary", show_header=True, header_style="bold magenta")
+                summary_table.add_column("Component", style="cyan")
+                summary_table.add_column("Status", style="green")
+                summary_table.add_column("Details", style="yellow")
+
+                summary_table.add_row(
+                    "Video Scenes",
+                    f"{len(assets.get('videos', []))} generated",
+                    "6 seconds each, Veo3 format"
+                )
+
+                audio_data = assets.get("audio", {})
+                summary_table.add_row(
+                    "Voiceover",
+                    f"{len(audio_data.get('voiceover_tracks', []))} tracks",
+                    "ElevenLabs synthesis"
+                )
+
+                summary_table.add_row(
+                    "Sound Effects",
+                    f"{len(audio_data.get('sound_effects', []))} effects",
+                    "Timed and positioned"
+                )
+
+                if assets.get("final_output"):
+                    summary_table.add_row(
+                        "Final Video",
+                        "✅ Complete",
+                        f"Optimized for {result.get('production_plan', {}).get('optimization', {}).get('platform', 'TikTok')}"
+                    )
+                else:
+                    summary_table.add_row(
+                        "Final Video",
+                        "⚠️ Mock Mode",
+                        "Set API keys for actual generation"
+                    )
+
+                console.print(summary_table)
+
+                # Display scene descriptions
+                console.print("\n[bold cyan]🎬 Generated Scenes:[/bold cyan]")
+                if "production_plan" in result and "scenes" in result["production_plan"]:
+                    scenes_data = result["production_plan"]["scenes"]
+                    if isinstance(scenes_data, str):
+                        try:
+                            import json
+                            scenes_data = json.loads(scenes_data)
+                        except:
+                            pass
+
+                    if isinstance(scenes_data, dict) and "scenes" in scenes_data:
+                        for idx, scene in enumerate(scenes_data["scenes"][:3], 1):  # Show first 3 scenes
+                            scene_panel = Panel(
+                                f"[yellow]{scene.get('description', 'No description')}[/yellow]\n\n"
+                                f"[dim]Type: {scene.get('type', 'unknown')} | "
+                                f"Duration: {scene.get('duration', 6)}s | "
+                                f"Camera: {scene.get('camera_movement', 'static')}[/dim]",
+                                title=f"Scene {idx}",
+                                border_style="green"
+                            )
+                            console.print(scene_panel)
+
+                # Display voiceover script sample
+                if audio_data.get("voiceover_tracks"):
+                    console.print("\n[bold cyan]🎙️ Voiceover Sample:[/bold cyan]")
+                    first_vo = audio_data["voiceover_tracks"][0]
+                    vo_panel = Panel(
+                        f"[yellow]{first_vo.get('text', 'No text')}[/yellow]\n\n"
+                        f"[dim]Time: {first_vo.get('time_range', '00:00')} | "
+                        f"Voice: {first_vo.get('voice_used', 'default')} | "
+                        f"Emotion: {first_vo.get('emotion', 'neutral')}[/dim]",
+                        title="Opening Voiceover",
+                        border_style="cyan"
+                    )
+                    console.print(vo_panel)
+
+                # Show output location
+                if "timestamp" in result:
+                    output_dir = f"outputs/viral_videos/viral_video_{result['timestamp'].replace(':', '').replace('-', '')[:15]}"
+                    console.print(f"\n[green]✅ Video generation complete![/green]")
+                    console.print(f"[cyan]📁 Outputs saved to: {output_dir}/[/cyan]")
+                    console.print(f"[dim]   • production_plan.json - Complete production details[/dim]")
+                    console.print(f"[dim]   • generation_log.json - Full generation log[/dim]")
+                    console.print(f"[dim]   • assets/ - Individual scene and audio files[/dim]")
+                    console.print(f"[dim]   • README.md - Production summary[/dim]")
+
+            else:
+                console.print("[yellow]⚠️ Video generation completed with limited output[/yellow]")
+                console.print("[dim]Set VEO3_API_KEY and ELEVENLABS_API_KEY for full generation[/dim]")
+
+        except Exception as e:
+            progress.stop()
+            console.print(f"[red]Error during video generation: {str(e)}[/red]")
+            console.print("[dim]Check that all dependencies are installed and API keys are set[/dim]")
 
 
 @cli.command()
@@ -370,6 +524,7 @@ def interactive():
             console.print("  about     - Karlo's background")
             console.print("  analyze   - Analyze a topic")
             console.print("  campaign  - Generate campaign")
+            console.print("  video     - Generate viral video")
             console.print("  trend     - Quick trend analysis")
             console.print("  clear     - Clear screen")
             console.print("  exit      - Exit interactive mode")
