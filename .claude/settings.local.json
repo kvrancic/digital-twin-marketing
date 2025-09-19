@@ -11,7 +11,12 @@
       "Bash(zip:*)",
       "Bash(timeout 30 python main.py about)",
       "Bash(curl:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(jq:*)",
+      "Bash(for dir in outputs/viral_videos/example_*/)",
+      "Bash(ls:*)",
+      "Bash(done)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
