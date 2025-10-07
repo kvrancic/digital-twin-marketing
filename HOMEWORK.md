@@ -13,9 +13,10 @@ This project extends my previous Digital Twin (HW1-HW3) with voice interaction c
 ### Key Features Added
 
 1. **Speech-to-Text (STT):** OpenAI Whisper API for transcribing user voice input
-2. **Text-to-Speech (TTS):** Kokoro TTS with multiple voices for agent differentiation
+2. **Text-to-Speech (TTS):** Microsoft Edge TTS with multiple neural voices for agent differentiation
 3. **Podcast Mode:** Multi-agent discussions with turn-taking and voice synthesis
-4. **Real-time Voice I/O:** Microphone recording with automatic silence detection
+4. **Interactive Podcast:** User participates in discussions via voice input
+5. **Real-time Voice I/O:** Microphone recording with manual stop control (press Enter)
 
 ### Architecture
 
@@ -30,10 +31,13 @@ Digital Twin Voice System
 │   └── WhisperSTT: OpenAI Whisper API integration
 │
 ├── TTS Layer (src/voice/tts.py)
-│   └── KokoroTTS: Multi-voice synthesis (3 unique voices)
+│   └── EdgeTTS: Multi-voice neural synthesis (3 unique voices)
 │
-└── Orchestration (src/voice/podcast_orchestrator.py)
-    └── PodcastOrchestrator: Manages agent conversations
+├── Orchestration (src/voice/podcast_orchestrator.py)
+│   └── PodcastOrchestrator: Manages automated agent discussions
+│
+└── Interactive Mode (src/voice/interactive_podcast.py)
+    └── InteractivePodcast: User participates in discussions
 ```
 
 ---
@@ -70,42 +74,48 @@ transcript = stt.transcribe(audio_file)
 
 ### B. Text-to-Speech Implementation
 
-**Library Used:** Kokoro TTS (via `kokoro-onnx` package)
+**Library Used:** Microsoft Edge TTS (via `edge-tts` package)
 
 **Implementation Details:**
-- Local neural TTS model (no API costs)
-- Supports 9 different voice presets
+- Cloud-based neural TTS (free Microsoft service)
+- High-quality neural voices with natural intonation
 - 24kHz sample rate for clear audio quality
-- Real-time synthesis (< 1 second latency)
+- Async synthesis with minimal latency
+- No setup required - works out of the box
 
 **Voice Assignment:**
-- **Zeitgeist Philosopher** → `af_sky` (deep, contemplative female voice)
-- **Cynical Content Architect** → `am_adam` (dry, sardonic male voice)
-- **Brutalist Optimizer** → `bf_emma` (analytical British female voice)
+- **Zeitgeist Philosopher** → `en-US-AvaNeural` (warm, conversational female voice)
+- **Cynical Content Architect** → `en-US-GuyNeural` (casual, engaging male voice)
+- **Brutalist Optimizer** → `en-GB-MaisieNeural` (analytical British female voice)
 
 **Code Flow:**
 ```python
 # Agent generates text response
 text = "Your bounce rate is achieving escape velocity."
 
-# Kokoro synthesizes with agent-specific voice
-tts = KokoroTTS()
+# Edge TTS synthesizes with agent-specific voice
+tts = EdgeTTS()
 audio = tts.speak_as_agent(text, agent_name='optimizer')
 
 # Audio is played through speakers
 AudioPlayer().play(audio)
 ```
 
-**Why Kokoro?**
-- Open-source and runs locally (privacy + cost savings)
+**Why Edge TTS?**
+- Free Microsoft cloud service (no API key needed)
+- High-quality neural voices with natural prosody
 - Multiple voice options for agent differentiation
-- Good quality without requiring GPU
-- Simple Python integration
+- No local model downloads or setup
+- Works cross-platform with simple installation
 
 ### C. Podcast Orchestration
 
-**How it Works:**
+**Two Modes Available:**
 
+#### 1. Automated Podcast Mode
+Agents discuss among themselves while you listen.
+
+**How it Works:**
 1. **Input:** User speaks a topic or types it
 2. **Transcription:** Whisper converts speech → text
 3. **Round 1 - Openings:** Each agent provides opening statement
@@ -132,11 +142,53 @@ for agent_name in ['philosopher', 'architect', 'optimizer']:
     previous_statement = response
 ```
 
+#### 2. Interactive Podcast Mode (NEW!)
+You participate in the discussion alongside the agents.
+
+**How it Works:**
+1. **Input:** Provide topic (text or voice)
+2. **Interactive Loop:** After each speaker:
+   - **Menu appears:** Choose who speaks next
+     - [1] You (voice input)
+     - [2] Philosopher
+     - [3] Architect
+     - [4] Optimizer
+     - [5] End discussion
+3. **Your Turn:** When you speak:
+   - Press Enter to start recording
+   - Speak your thoughts
+   - Press Enter again to stop
+   - Whisper transcribes your input
+   - Your contribution added to discussion
+4. **Agent Turn:** When agent speaks:
+   - Agent responds to previous speaker
+   - Response synthesized and played
+   - Agent's text shown on screen
+5. **Output:** Complete transcript with all contributions saved
+
+**Interactive Flow:**
+```python
+while not ended:
+    choice = get_user_choice()
+
+    if choice == 'user':
+        audio = recorder.record_manual()  # Stop with Enter key
+        text = stt.transcribe(audio)
+        add_to_transcript(speaker='user', text=text)
+
+    elif choice == 'agent':
+        response = agent.respond(previous_text)
+        tts.speak(response, agent_voice)
+        add_to_transcript(speaker=agent_name, text=response)
+```
+
 ---
 
 ## 3. Example Run Explanation
 
-### Command Used:
+### Example 1: Automated Podcast
+
+**Command Used:**
 ```bash
 python main.py voice-chat --topic "AI agents and the future of work"
 ```
@@ -149,13 +201,13 @@ python main.py voice-chat --topic "AI agents and the future of work"
 
 **Step 2: Opening Statements (Round 1)**
 
-**🧐 Zeitgeist Philosopher** (voice: af_sky):
+**🧐 Zeitgeist Philosopher** (voice: en-US-AvaNeural):
 > "Oh look, another panic about automation. How delightfully predictable. But here's the thing - humans aren't afraid of AI taking jobs. They're afraid of being forced to admit they've been treating work as their primary source of meaning in a meaningless universe. The real disruption isn't technological; it's existential."
 
-**✍️ Cynical Content Architect** (voice: am_adam):
+**✍️ Cynical Content Architect** (voice: en-US-GuyNeural):
 > "The philosopher's right, and corporations know it. That's why 'AI will augment, not replace' became the most repeated lie of 2024. People don't want augmentation - they want security. And we're selling them stories about collaboration when we should be redesigning what work means entirely."
 
-**📊 Brutalist Optimizer** (voice: bf_emma):
+**📊 Brutalist Optimizer** (voice: en-GB-MaisieNeural):
 > "Your emotional narratives aside, the data is clear: 47% of current jobs will be automated by 2030. The inefficiency isn't in the automation itself - it's in pretending it won't happen. Optimal strategy: retrain for non-automatable skills. Humans excel at creativity, empathy, complex problem-solving. Focus there."
 
 **Step 3: Discussion Round 2**
@@ -180,25 +232,108 @@ Each agent provides a final thought that synthesizes the discussion.
 
 ---
 
+### Example 2: Interactive Podcast (NEW!)
+
+**Command Used:**
+```bash
+python main.py voice-chat --interactive --topic "AI ethics"
+```
+
+### What Happened:
+
+**Step 1: Menu Appears**
+```
+Who speaks next?
+  [1] You (voice input)
+  [2] 🧐 Zeitgeist Philosopher
+  [3] ✍️ Cynical Content Architect
+  [4] 📊 Brutalist Optimizer
+  [5] End discussion
+Choose (1-5):
+```
+
+**Step 2: User Chooses to Speak (1)**
+```
+🎙️  Recording... Press ENTER when done speaking.
+[User speaks: "I think AI ethics should prioritize transparency over efficiency"]
+✓ Recording stopped.
+🔄 Transcribing...
+
+👤 You (Karlo):
+  I think AI ethics should prioritize transparency over efficiency
+```
+
+**Step 3: User Chooses Philosopher (2)**
+```
+⏳ 🧐 Zeitgeist Philosopher is thinking...
+
+🧐 Zeitgeist Philosopher:
+  Ah, the classic Silicon Valley false dichotomy. As if transparency and efficiency
+  are opposing forces rather than complementary design choices. The real question
+  isn't which to prioritize - it's who benefits from the opacity.
+```
+
+**Step 4: User Chooses Optimizer (4)**
+```
+⏳ 📊 Brutalist Optimizer is thinking...
+
+📊 Brutalist Optimizer:
+  From a conversion perspective, transparency reduces trust friction by 68%. The
+  efficiency argument is a red herring - optimal systems are inherently transparent
+  because hidden processes create debugging overhead.
+```
+
+**Step 5: Conversation Continues...**
+
+User can continue choosing speakers, contributing via voice, until choosing [5] to end.
+
+**Output:** Full transcript saved to `outputs/interactive_podcast_ai_ethics.md` including all user contributions
+
+---
+
 ## 4. Technical Challenges & Solutions
 
 ### Challenge 1: Voice Selection
 **Problem:** How to assign distinct voices to each agent?
 
-**Solution:** Used Kokoro's preset voices with personality matching:
-- Philosopher needs intellectual gravitas → deep female voice (`af_sky`)
-- Architect needs dry wit → male voice with character (`am_adam`)
-- Optimizer needs precision → British accent for technical authority (`bf_emma`)
+**Solution:** Used Edge TTS neural voices with personality matching:
+- Philosopher needs intellectual gravitas → warm female voice (`en-US-AvaNeural`)
+- Architect needs dry wit → conversational male voice (`en-US-GuyNeural`)
+- Optimizer needs precision → British accent for technical authority (`en-GB-MaisieNeural`)
 
-### Challenge 2: Silence Detection
-**Problem:** When to stop recording user input?
+### Challenge 2: TTS Library Compatibility
+**Problem:** Initial implementation used Kokoro TTS which required manual model downloads and complex setup.
 
-**Solution:** Implemented RMS-based silence detection:
-- Track audio amplitude in real-time
-- If RMS < threshold for 2 seconds → stop recording
-- Prevents awkward "still listening" scenarios
+**Solution:** Switched to Microsoft Edge TTS:
+- Cloud-based service (no downloads needed)
+- Free and no API key required
+- High-quality neural voices
+- Works out of the box with `pip install edge-tts`
+- Async/await pattern for efficient synthesis
 
-### Challenge 3: Conversation Context
+### Challenge 3: Recording Control
+**Problem:** Silence detection auto-stop was unreliable in interactive mode. Users wanted control over when to stop speaking.
+
+**Solution:** Implemented manual recording control with Enter key:
+- User presses Enter to start recording
+- User speaks
+- User presses Enter again to stop
+- Threading used to listen for Enter key while recording
+- Much more reliable than silence detection for interactive discussions
+
+### Challenge 4: Agent Output Clarity
+**Problem:** Brutalist Optimizer was showing internal LLM thoughts ("Thought: I have successfully created...") in podcast mode because it was using FileWriterTool.
+
+**Solution:** Added `podcast_mode` parameter:
+```python
+# In podcast mode: no tools, no verbose output
+optimizer = BrutalistOptimizer().create(podcast_mode=True)
+optimizer.verbose = False
+optimizer.tools = []  # Disable file writing in podcast mode
+```
+This ensures agents only speak their actual responses, not their internal reasoning.
+
+### Challenge 5: Conversation Context
 **Problem:** How to make agents respond to each other, not just the topic?
 
 **Solution:** Pass previous statement as context to next agent's task:
@@ -207,13 +342,22 @@ task = create_response_task(agent, topic, previous_statement)
 ```
 This ensures each agent builds on the conversation.
 
-### Challenge 4: Latency Management
-**Problem:** Long pauses between agents break podcast flow.
+### Challenge 6: Interactive Flow Control
+**Problem:** How to let user choose who speaks next while maintaining conversation context?
 
-**Solution:**
-- Use local Kokoro TTS (no API latency)
-- Pre-initialize TTS engine before podcast starts
-- Sequential execution with immediate playback
+**Solution:** Created menu-driven interactive loop:
+```python
+while not ended:
+    show_menu()  # Display speaker options
+    choice = get_user_choice()
+
+    if user_wants_to_speak:
+        user_contribution = record_and_transcribe()
+        previous_text = user_contribution
+    elif agent_selected:
+        agent_response = get_agent_response(agent, previous_text)
+        previous_text = agent_response
+```
 
 ---
 
@@ -226,10 +370,11 @@ This ensures each agent builds on the conversation.
   - Requires API key
 
 ### Text-to-Speech
-- **Kokoro ONNX** (`kokoro-onnx>=0.3.0`)
-  - Neural TTS engine
-  - Local inference
-  - Multiple voice support
+- **Edge TTS** (`edge-tts>=6.1.9`)
+  - Microsoft neural TTS
+  - Cloud-based synthesis
+  - Free service (no API key)
+  - Multiple neural voice support
 
 ### Audio Handling
 - **sounddevice** (`sounddevice>=0.4.6`)
@@ -245,6 +390,10 @@ This ensures each agent builds on the conversation.
   - Audio sample processing
   - Silence detection math
 
+- **scipy** (`scipy>=1.11.0`)
+  - Audio resampling
+  - Sample rate conversion
+
 ### Agent Framework
 - **CrewAI** (from HW1-HW3)
   - Multi-agent orchestration
@@ -259,17 +408,25 @@ This ensures each agent builds on the conversation.
 
 1. **STT vs TTS tradeoffs:**
    - Cloud STT (Whisper): Great accuracy, requires internet
-   - Local TTS (Kokoro): Privacy + speed, but limited voices
+   - Cloud TTS (Edge): High quality, free, but requires internet
+   - Cloud services won out for both due to simplicity and quality
 
 2. **Audio processing is harder than expected:**
-   - Silence detection needs tuning for different environments
+   - Silence detection unreliable for interactive use
+   - Manual control (Enter key) much better for user participation
    - Sample rates must match between recording/playback
    - Background noise significantly affects transcription
+   - Threading required for simultaneous recording and input listening
 
 3. **Voice selection matters for UX:**
    - Distinct voices prevent confusion in multi-agent systems
    - Voice personality should match agent character
    - British accent does make technical content sound more authoritative (optimizer!)
+
+4. **Library selection is critical:**
+   - Initial choice (Kokoro) required manual downloads and setup
+   - Switching to Edge TTS saved hours of user setup time
+   - Cloud-based services often simpler than local models
 
 ### Design Learnings
 
@@ -278,12 +435,22 @@ This ensures each agent builds on the conversation.
    - Turn-taking creates natural conversation flow
    - Disagreement and building on ideas adds value
 
-2. **Voice reveals personality:**
+2. **Interactive > Passive listening:**
+   - Letting user participate increases engagement dramatically
+   - User wants control over conversation flow
+   - Being able to challenge agents or add ideas makes it feel like real discussion
+
+3. **Voice reveals personality:**
    - Same text sounds different in different voices
    - TTS enhances agent character differentiation
    - Users connect more with "speaking" agents
 
-3. **Accessibility implications:**
+4. **Control mechanisms matter:**
+   - Silence detection felt unpredictable
+   - Explicit control (press Enter) feels more reliable
+   - Users prefer predictable over "magical" interfaces
+
+5. **Accessibility implications:**
    - Voice I/O makes AI more accessible
    - Hands-free operation enables multitasking
    - Audio transcripts useful for different learning styles
@@ -292,11 +459,14 @@ This ensures each agent builds on the conversation.
 
 ## 7. Future Improvements
 
-1. **Real-time voice interruption:** Let user interrupt agents mid-speech
+1. **Real-time voice interruption:** Let user interrupt agents mid-speech by pressing a key
 2. **Emotion modulation:** Vary pitch/tone based on content (sarcasm detection!)
 3. **Voice cloning:** Train custom voices that better match agent personalities
 4. **Whisper local model:** Add offline STT option using local Whisper
 5. **Multi-language support:** Podcast in Croatian/other languages
+6. **Debate mode:** Agents take opposing positions on controversial topics
+7. **Save audio recordings:** Export podcast as MP3 file for sharing
+8. **Visual waveforms:** Show who's speaking with audio visualization
 
 ---
 
@@ -324,14 +494,21 @@ cp .env.example .env
 python main.py test-mic
 python main.py test-voices
 
-# Run podcast mode
+# Run automated podcast mode (agents only)
 python main.py voice-chat --topic "your topic here"
+
+# Run interactive podcast mode (you participate!)
+python main.py voice-chat --interactive --topic "your topic here"
 ```
 
 ---
 
 ## Conclusion
 
-This homework successfully extended my Digital Twin with multimodal voice capabilities. The combination of OpenAI Whisper (STT) and Kokoro TTS enabled natural voice interactions, while the podcast orchestration format created engaging multi-agent discussions. Each agent maintains their unique personality through both text generation and voice synthesis, resulting in a system that feels more human and accessible than text-only interaction.
+This homework successfully extended my Digital Twin with multimodal voice capabilities. The combination of OpenAI Whisper (STT) and Microsoft Edge TTS enabled natural voice interactions, while the dual podcast modes (automated and interactive) created engaging multi-agent discussions. Each agent maintains their unique personality through both text generation and voice synthesis, resulting in a system that feels more human and accessible than text-only interaction.
 
-The journey from planning to implementation revealed both the power and complexity of voice AI - from managing audio I/O to orchestrating multi-speaker conversations. The final system demonstrates that voice can enhance agent interactions beyond mere novelty, creating genuinely more engaging and accessible AI experiences.
+The journey from planning to implementation revealed both the power and complexity of voice AI - from managing audio I/O to orchestrating multi-speaker conversations. Key technical decisions like switching from Kokoro to Edge TTS for simplicity, and adding manual recording control for reliability, significantly improved the user experience.
+
+The **interactive podcast mode** proved especially valuable, transforming the system from a passive listening experience into an active discussion where users can contribute ideas, challenge agents, and steer conversations. This demonstrates that voice AI is most powerful when it enables genuine two-way interaction, not just one-way speech synthesis.
+
+The final system demonstrates that voice can enhance agent interactions beyond mere novelty, creating genuinely more engaging and accessible AI experiences that feel conversational and collaborative.

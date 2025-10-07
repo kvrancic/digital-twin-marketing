@@ -20,9 +20,10 @@ Quick note: I also made another project with CrewAI: [Interview Analyzer & Archi
 
 ### HW4: Voice Capabilities (NEW!)
 ✅ **Speech-to-Text** - OpenAI Whisper API integration for voice input
-✅ **Text-to-Speech** - Kokoro TTS with 3 unique voices (one per agent)
+✅ **Text-to-Speech** - Microsoft Edge TTS with 3 unique neural voices (one per agent)
 ✅ **Podcast Mode** - Multi-agent voice discussions with turn-taking
-✅ **Real-time Audio** - Microphone recording with automatic silence detection
+✅ **Interactive Mode** - User participates in discussions via voice
+✅ **Real-time Audio** - Microphone recording with manual control (press Enter)
 ✅ **Documentation** - Complete write-up (HOMEWORK.md) and testing guide (TESTING.md)
 ✅ **Demo Video** - Ready to record (see TESTING.md for instructions)
 
@@ -45,9 +46,10 @@ This homework demonstrates advanced multi-agent orchestration using CrewAI as re
 - **Web Search Integration**: Uses Serper API for real-time trend analysis
 
 #### Voice Features (HW4 - NEW!)
-- **🎤 Voice Input**: Speak your topics via microphone with auto-silence detection
-- **🔊 Voice Output**: Each agent speaks in a unique voice (3 distinct voices via Kokoro TTS)
+- **🎤 Voice Input**: Speak your topics via microphone with manual control (press Enter to stop)
+- **🔊 Voice Output**: Each agent speaks in a unique neural voice (3 distinct voices via Edge TTS)
 - **🎙️ Podcast Mode**: Multi-agent discussions where agents debate and build on each other's ideas
+- **👥 Interactive Mode**: Participate in discussions - choose who speaks next and contribute via voice
 - **🗣️ Real-time STT**: OpenAI Whisper API transcribes speech to text accurately
 - **🎵 Multi-Voice TTS**: Philosopher, Architect, and Optimizer each have personality-matched voices
 - **📝 Transcript Saving**: All podcast discussions saved as markdown files
@@ -137,16 +139,28 @@ python main.py voice-chat
 ### 🎙️ Voice Commands (HW4 - NEW!)
 
 ```bash
-# Voice-enabled podcast discussion
+# Automated podcast discussion (agents only)
 python main.py voice-chat
 # → Speak your topic via microphone
 # → Agents discuss in their unique voices
 # → Transcript saved to outputs/
 
+# Interactive podcast discussion (you participate!)
+python main.py voice-chat --interactive
+# → You choose who speaks next
+# → You can speak via voice (press Enter to stop)
+# → Agents respond to you and each other
+# → Full conversation transcript saved
+
 # Voice chat with text topic (skip voice input)
 python main.py voice-chat --topic "AI and creativity"
 # → Agents discuss the provided topic
 # → Each agent speaks in their unique voice
+
+# Interactive mode with topic
+python main.py voice-chat --interactive --topic "AI ethics"
+# → Start interactive discussion on specific topic
+# → You participate alongside agents
 
 # Test microphone
 python main.py test-mic
@@ -156,7 +170,7 @@ python main.py test-mic
 # Test TTS voices
 python main.py test-voices
 # → Each agent speaks a test phrase
-# → Hear all three unique voices
+# → Hear all three unique neural voices
 ```
 
 **📖 For detailed testing instructions, see [TESTING.md](TESTING.md)**
@@ -248,14 +262,23 @@ digital-twin/
 │   │   ├── architect.py      # Cynical Content Architect
 │   │   └── optimizer.py      # Brutalist Optimizer
 │   ├── tasks/            # Task definitions for agents
-│   │   └── marketing_tasks.py
-│   └── crew/             # Crew orchestration
-│       └── marketing_crew.py
+│   │   ├── marketing_tasks.py   # Marketing pipeline tasks
+│   │   └── podcast_tasks.py     # Conversational podcast tasks (HW4)
+│   ├── crew/             # Crew orchestration
+│   │   └── marketing_crew.py
+│   └── voice/            # Voice capabilities (HW4 - NEW!)
+│       ├── stt.py                 # Speech-to-text (Whisper)
+│       ├── tts.py                 # Text-to-speech (Edge TTS)
+│       ├── audio_utils.py         # Recording & playback
+│       ├── podcast_orchestrator.py  # Automated podcast mode
+│       └── interactive_podcast.py   # Interactive mode (user participates)
 ├── outputs/              # Generated content output (organized by topic)
 ├── config.py             # Configuration management
 ├── main.py              # Terminal interface
 ├── requirements.txt      # Python dependencies
 ├── .env.example         # Environment variables template
+├── HOMEWORK.md          # Technical write-up for HW4
+├── TESTING.md           # Testing guide for voice features
 ├── CLAUDE.md            # Project guidelines and requirements
 └── README.md            # This file
 ```
