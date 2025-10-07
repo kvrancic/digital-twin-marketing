@@ -25,6 +25,17 @@ from config import Config
 # Initialize Rich console for beautiful terminal output
 console = Console()
 
+# Voice capabilities imports (lazy loaded)
+try:
+    from src.voice.audio_utils import AudioRecorder, AudioPlayer
+    from src.voice.stt import WhisperSTT
+    from src.voice.tts import KokoroTTS
+    from src.voice.podcast_orchestrator import PodcastOrchestrator
+    VOICE_AVAILABLE = True
+except ImportError as e:
+    VOICE_AVAILABLE = False
+    VOICE_IMPORT_ERROR = str(e)
+
 
 def print_header():
     """Print the application header."""
@@ -336,6 +347,23 @@ def info():
     for cmd, desc in commands:
         console.print(f"  [green]{cmd:12}[/green] - {desc}")
 
+    console.print("\n[bold cyan]🎙️  Voice Commands (HW4):[/bold cyan]")
+    voice_commands = [
+        ("voice-chat", "Podcast-style discussion with voice input/output"),
+        ("test-mic", "Test microphone recording"),
+        ("test-voices", "Test TTS voices for each agent"),
+    ]
+
+    for cmd, desc in voice_commands:
+        status = "[green]✓[/green]" if VOICE_AVAILABLE else "[red]✗[/red]"
+        console.print(f"  {status} [green]{cmd:12}[/green] - {desc}")
+
+    if not VOICE_AVAILABLE:
+        console.print("\n[yellow]⚠️  Voice features require additional setup:[/yellow]")
+        console.print("  1. pip install -r requirements.txt")
+        console.print("  2. brew install portaudio (macOS)")
+        console.print("  3. Set OPENAI_API_KEY in .env")
+
     console.print("\n[bold cyan]🔧 Configuration:[/bold cyan]")
     console.print(f"  Lite Model (simple tasks): [yellow]{Config.LITE_MODEL}[/yellow]")
     console.print(f"  Pro Model (complex tasks): [yellow]{Config.PRO_MODEL}[/yellow]")
@@ -345,6 +373,149 @@ def info():
     console.print("\n[bold cyan]📊 Model Usage:[/bold cyan]")
     console.print(f"  [green]Lite Model[/green] → introduce, about")
     console.print(f"  [green]Pro Model[/green] → analyze, campaign, trend")
+
+
+@cli.command()
+@click.option('--topic', '-t', help='Topic to discuss (optional, can use voice input)')
+@click.option('--rounds', '-r', default=2, help='Number of discussion rounds (default: 2)')
+def voice_chat(topic: Optional[str], rounds: int):
+    """Voice-enabled podcast discussion mode with real-time speech."""
+    print_header()
+
+    if not VOICE_AVAILABLE:
+        console.print(f"[red]✗ Voice capabilities not available[/red]")
+        console.print(f"[yellow]Error: {VOICE_IMPORT_ERROR}[/yellow]")
+        console.print("\n[cyan]To enable voice features:[/cyan]")
+        console.print("1. Install dependencies: pip install -r requirements.txt")
+        console.print("2. Install PortAudio: brew install portaudio (macOS)")
+        console.print("3. Set OPENAI_API_KEY in .env file")
+        return
+
+    console.print("\n[bold cyan]🎙️  Voice Chat Mode - Podcast Discussion[/bold cyan]\n")
+
+    try:
+        # Initialize components
+        stt = WhisperSTT()
+        recorder = AudioRecorder()
+        orchestrator = PodcastOrchestrator(use_lite=False)
+
+        # Get topic via voice or parameter
+        if not topic:
+            console.print("[cyan]🎤 Listening... Speak your topic (will auto-stop after 2 seconds of silence)[/cyan]")
+            console.print("[dim]Press Ctrl+C to cancel[/dim]\n")
+
+            # Record audio
+            audio_file = recorder.record_to_file()
+
+            console.print("[cyan]🔄 Transcribing...[/cyan]")
+            topic = stt.transcribe(audio_file)
+
+            # Clean up temp file
+            os.remove(audio_file)
+
+            console.print(f"\n[green]✓ You said:[/green] [bold]{topic}[/bold]\n")
+
+            # Confirm
+            if not Confirm.ask("Start podcast discussion on this topic?", default=True):
+                console.print("[yellow]Cancelled.[/yellow]")
+                return
+
+        # Run podcast discussion
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("[cyan]Starting podcast discussion...", total=None)
+            progress.stop()
+
+        result = orchestrator.run_discussion(topic, rounds=rounds)
+
+        # Save transcript
+        orchestrator.save_transcript(result)
+
+        console.print("\n[green]✅ Podcast discussion complete![/green]")
+        console.print(f"[cyan]Topic:[/cyan] {result['topic']}")
+        console.print(f"[cyan]Rounds:[/cyan] {result['rounds']}")
+        console.print(f"[cyan]Contributions:[/cyan] {len(result['transcript'])}")
+
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Voice chat cancelled.[/yellow]")
+    except Exception as e:
+        console.print(f"\n[red]Error during voice chat: {str(e)}[/red]")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+
+
+@cli.command()
+def test_mic():
+    """Test microphone input and recording."""
+    print_header()
+    console.print("\n[bold cyan]🎤 Microphone Test[/bold cyan]\n")
+
+    if not VOICE_AVAILABLE:
+        console.print(f"[red]✗ Voice capabilities not available[/red]")
+        console.print(f"[yellow]Error: {VOICE_IMPORT_ERROR}[/yellow]")
+        return
+
+    try:
+        console.print("[cyan]Speak for 3 seconds...[/cyan]\n")
+        AudioRecorder.test_microphone()
+        console.print("\n[green]✓ Microphone test complete![/green]")
+    except Exception as e:
+        console.print(f"\n[red]✗ Microphone test failed: {str(e)}[/red]")
+
+
+@cli.command()
+@click.option('--voice', '-v', help='Specific voice to test (e.g., af_sky, am_adam)')
+def test_voices(voice: Optional[str]):
+    """Test text-to-speech voices for each agent."""
+    print_header()
+    console.print("\n[bold cyan]🔊 Voice Test[/bold cyan]\n")
+
+    if not VOICE_AVAILABLE:
+        console.print(f"[red]✗ Voice capabilities not available[/red]")
+        console.print(f"[yellow]Error: {VOICE_IMPORT_ERROR}[/yellow]")
+        return
+
+    try:
+        tts = KokoroTTS()
+
+        if voice:
+            # Test specific voice
+            test_text = "Hello! This is a test of the Kokoro text-to-speech system."
+            console.print(f"[cyan]Testing voice: {voice}[/cyan]")
+            KokoroTTS.test_voice(voice, test_text)
+        else:
+            # Test all agent voices
+            console.print("[cyan]Testing voices for each agent...[/cyan]\n")
+
+            agents = {
+                'philosopher': ('Zeitgeist Philosopher', "Interesting. I've analyzed human speech patterns and found them absurdly predictable."),
+                'architect': ('Cynical Content Architect', "Language is manipulation, and I'm ruthlessly effective at using it."),
+                'optimizer': ('Brutalist Optimizer', "Your speech synthesis latency is acceptable. Optimization complete."),
+            }
+
+            for agent_name, (display_name, test_text) in agents.items():
+                console.print(f"\n[bold]{display_name}[/bold]")
+                console.print(f"  Text: {test_text}")
+
+                voice_id = tts.get_agent_voice(agent_name)
+                console.print(f"  Voice: {voice_id}")
+
+                audio = tts.speak_as_agent(test_text, agent_name)
+
+                player = AudioPlayer()
+                player.play(audio, blocking=True)
+
+                console.print("  [green]✓ Complete[/green]")
+
+            console.print("\n[green]✓ All voice tests complete![/green]")
+
+    except Exception as e:
+        console.print(f"\n[red]✗ Voice test failed: {str(e)}[/red]")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
 
 
 @cli.command()
