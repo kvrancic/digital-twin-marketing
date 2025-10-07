@@ -378,7 +378,8 @@ def info():
 @cli.command()
 @click.option('--topic', '-t', help='Topic to discuss (optional, can use voice input)')
 @click.option('--rounds', '-r', default=2, help='Number of discussion rounds (default: 2)')
-def voice_chat(topic: Optional[str], rounds: int):
+@click.option('--interactive', '-i', is_flag=True, help='Interactive mode - you participate in the discussion')
+def voice_chat(topic: Optional[str], rounds: int, interactive: bool):
     """Voice-enabled podcast discussion mode with real-time speech."""
     print_header()
 
@@ -391,53 +392,81 @@ def voice_chat(topic: Optional[str], rounds: int):
         console.print("3. Set OPENAI_API_KEY in .env file")
         return
 
-    console.print("\n[bold cyan]🎙️  Voice Chat Mode - Podcast Discussion[/bold cyan]\n")
+    # Import interactive podcast if needed
+    if interactive:
+        from src.voice import InteractivePodcast
+
+    mode_str = "Interactive Podcast" if interactive else "Podcast Discussion"
+    console.print(f"\n[bold cyan]🎙️  Voice Chat Mode - {mode_str}[/bold cyan]\n")
 
     try:
-        # Initialize components
-        stt = WhisperSTT()
-        recorder = AudioRecorder()
-        orchestrator = PodcastOrchestrator(use_lite=False)
+        if interactive:
+            # Interactive mode - user participates
+            orchestrator = InteractivePodcast(use_lite=False)
 
-        # Get topic via voice or parameter
-        if not topic:
-            console.print("[cyan]🎤 Listening... Speak your topic (will auto-stop after 2 seconds of silence)[/cyan]")
-            console.print("[dim]Press Ctrl+C to cancel[/dim]\n")
+            # Get topic if not provided
+            if not topic:
+                console.print("[yellow]Please provide a topic:[/yellow]")
+                topic = input("> ").strip()
+                if not topic:
+                    console.print("[red]No topic provided. Cancelled.[/red]")
+                    return
 
-            # Record audio
-            audio_file = recorder.record_to_file()
+            # Run interactive discussion
+            result = orchestrator.run_interactive_discussion(topic)
 
-            console.print("[cyan]🔄 Transcribing...[/cyan]")
-            topic = stt.transcribe(audio_file)
+            # Save transcript
+            orchestrator.save_transcript(result)
 
-            # Clean up temp file
-            os.remove(audio_file)
+            console.print("\n[green]✅ Interactive podcast complete![/green]")
+            console.print(f"[cyan]Topic:[/cyan] {result['topic']}")
+            console.print(f"[cyan]Contributions:[/cyan] {len(result['transcript'])}")
 
-            console.print(f"\n[green]✓ You said:[/green] [bold]{topic}[/bold]\n")
+        else:
+            # Regular podcast mode - agents only
+            stt = WhisperSTT()
+            recorder = AudioRecorder()
+            orchestrator = PodcastOrchestrator(use_lite=False)
 
-            # Confirm
-            if not Confirm.ask("Start podcast discussion on this topic?", default=True):
-                console.print("[yellow]Cancelled.[/yellow]")
-                return
+            # Get topic via voice or parameter
+            if not topic:
+                console.print("[cyan]🎤 Listening... Speak your topic (will auto-stop after 2 seconds of silence)[/cyan]")
+                console.print("[dim]Press Ctrl+C to cancel[/dim]\n")
 
-        # Run podcast discussion
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
-            task = progress.add_task("[cyan]Starting podcast discussion...", total=None)
-            progress.stop()
+                # Record audio
+                audio_file = recorder.record_to_file()
 
-        result = orchestrator.run_discussion(topic, rounds=rounds)
+                console.print("[cyan]🔄 Transcribing...[/cyan]")
+                topic = stt.transcribe(audio_file)
 
-        # Save transcript
-        orchestrator.save_transcript(result)
+                # Clean up temp file
+                os.remove(audio_file)
 
-        console.print("\n[green]✅ Podcast discussion complete![/green]")
-        console.print(f"[cyan]Topic:[/cyan] {result['topic']}")
-        console.print(f"[cyan]Rounds:[/cyan] {result['rounds']}")
-        console.print(f"[cyan]Contributions:[/cyan] {len(result['transcript'])}")
+                console.print(f"\n[green]✓ You said:[/green] [bold]{topic}[/bold]\n")
+
+                # Confirm
+                if not Confirm.ask("Start podcast discussion on this topic?", default=True):
+                    console.print("[yellow]Cancelled.[/yellow]")
+                    return
+
+            # Run podcast discussion
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                console=console,
+            ) as progress:
+                task = progress.add_task("[cyan]Starting podcast discussion...", total=None)
+                progress.stop()
+
+            result = orchestrator.run_discussion(topic, rounds=rounds)
+
+            # Save transcript
+            orchestrator.save_transcript(result)
+
+            console.print("\n[green]✅ Podcast discussion complete![/green]")
+            console.print(f"[cyan]Topic:[/cyan] {result['topic']}")
+            console.print(f"[cyan]Rounds:[/cyan] {result['rounds']}")
+            console.print(f"[cyan]Contributions:[/cyan] {len(result['transcript'])}")
 
     except KeyboardInterrupt:
         console.print("\n[yellow]Voice chat cancelled.[/yellow]")

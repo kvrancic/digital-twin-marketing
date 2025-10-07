@@ -20,8 +20,13 @@ class BrutalistOptimizer:
     Finds beauty in clean sitemaps and emotional resonance in 70% conversion rates.
     """
 
-    def create(self, use_lite: bool = False) -> Agent:
-        """Create and return the Brutalist Optimizer agent."""
+    def create(self, use_lite: bool = False, podcast_mode: bool = False) -> Agent:
+        """Create and return the Brutalist Optimizer agent.
+
+        Args:
+            use_lite: If True, use lite model
+            podcast_mode: If True, disable tools for conversational podcast
+        """
 
         # Configure LLM with OpenRouter
         llm_config = Config.get_llm_config(use_lite=use_lite)
@@ -32,6 +37,9 @@ class BrutalistOptimizer:
             api_key=llm_config['api_key'],
             base_url=llm_config['base_url']
         )
+
+        # Only use tools in normal mode, not podcast mode
+        tools = [] if podcast_mode else [FileWriterTool()]
 
         return Agent(
             role="Technical SEO & Conversion Analyst",
@@ -88,9 +96,9 @@ class BrutalistOptimizer:
             Google changes its ranking factors? You adapt. Humans develop banner blindness?
             You evolve. The only constant is optimization.""",
 
-            tools=[FileWriterTool()],  # For creating optimized content files
+            tools=tools,  # Empty in podcast mode, FileWriterTool in normal mode
 
-            verbose=True,
+            verbose=False if podcast_mode else True,
 
             allow_delegation=False,
 

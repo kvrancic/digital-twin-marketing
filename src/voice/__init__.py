@@ -7,6 +7,7 @@ from .stt import WhisperSTT
 from .tts import EdgeTTS
 from .audio_utils import AudioRecorder, AudioPlayer
 from .podcast_orchestrator import PodcastOrchestrator
+from .interactive_podcast import InteractivePodcast
 
 __all__ = [
     'WhisperSTT',
@@ -14,4 +15,5 @@ __all__ = [
     'AudioRecorder',
     'AudioPlayer',
     'PodcastOrchestrator',
+    'InteractivePodcast',
 ]

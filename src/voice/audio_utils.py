@@ -10,6 +10,7 @@ from typing import Optional
 import tempfile
 import os
 import sys
+import threading
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from config import Config
 
@@ -120,6 +121,62 @@ class AudioRecorder:
         sf.write(output_path, audio, self.sample_rate)
 
         return output_path
+
+    def record_manual(self) -> np.ndarray:
+        """
+        Record audio until user presses Enter.
+
+        Returns:
+            Numpy array of recorded audio samples
+        """
+        self.audio_data = []
+        self.is_recording = True
+        stop_event = threading.Event()
+
+        def callback(indata, frames, time, status):
+            if status:
+                print(f"Recording status: {status}")
+            # Store audio data
+            self.audio_data.append(indata.copy())
+            # Check if stop requested
+            if stop_event.is_set():
+                raise sd.CallbackStop()
+
+        def wait_for_enter():
+            """Wait for Enter key press."""
+            input()  # This blocks until Enter is pressed
+            stop_event.set()
+
+        # Start listening for Enter in a separate thread
+        enter_thread = threading.Thread(target=wait_for_enter, daemon=True)
+        enter_thread.start()
+
+        print("🎙️  Recording... Press ENTER when done speaking.")
+
+        try:
+            with sd.InputStream(
+                samplerate=self.sample_rate,
+                channels=self.channels,
+                callback=callback,
+                dtype='float32'
+            ):
+                # Wait until Enter is pressed
+                while not stop_event.is_set():
+                    sd.sleep(100)
+
+        except (KeyboardInterrupt, sd.CallbackStop):
+            pass
+        finally:
+            self.is_recording = False
+            stop_event.set()
+
+        print("✓ Recording stopped.")
+
+        # Concatenate all recorded chunks
+        if self.audio_data:
+            return np.concatenate(self.audio_data, axis=0)
+        else:
+            return np.array([])
 
     def stop(self):
         """Stop recording."""

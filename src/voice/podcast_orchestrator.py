@@ -34,10 +34,15 @@ class PodcastOrchestrator:
         # Set OpenAI API key for CrewAI
         os.environ['OPENAI_API_KEY'] = Config.OPENROUTER_API_KEY
 
-        # Initialize agents
+        # Initialize agents in podcast mode (no tools, not verbose)
         self.philosopher = ZeitgeistPhilosopher().create(use_lite=use_lite)
         self.architect = CynicalContentArchitect().create(use_lite=use_lite)
-        self.optimizer = BrutalistOptimizer().create(use_lite=use_lite)
+        self.optimizer = BrutalistOptimizer().create(use_lite=use_lite, podcast_mode=True)
+
+        # Set verbose=False for all agents in podcast mode
+        self.philosopher.verbose = False
+        self.architect.verbose = False
+        self.optimizer.verbose = False
 
         # Task factory
         self.tasks = PodcastTasks()
