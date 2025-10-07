@@ -11,23 +11,24 @@ Quick note: I also made another project with CrewAI: [Interview Analyzer & Archi
 
 ## 📚 HOMEWORK REQUIREMENTS MET
 
+### HW1-HW3: Multi-Agent System
 ✅ **CrewAI Framework Used** - Agents, Tasks, Crews, Tools, Context Passing
-
 ✅ **Agents Defined** - 3 agents with roles, goals, backstories, and personas reflecting me
-
 ✅ **Tasks Created** - Marketing tasks with descriptions and expected outputs
-
 ✅ **Crews Orchestrated** - 4-step pipeline with proper agent collaboration
-
 ✅ **Web Search Tool** - Integrated Serper API for trend analysis
 
-✅ **Documentation Complete** - Comprehensive README with learnings
+### HW4: Voice Capabilities (NEW!)
+✅ **Speech-to-Text** - OpenAI Whisper API integration for voice input
+✅ **Text-to-Speech** - Kokoro TTS with 3 unique voices (one per agent)
+✅ **Podcast Mode** - Multi-agent voice discussions with turn-taking
+✅ **Real-time Audio** - Microphone recording with automatic silence detection
+✅ **Documentation** - Complete write-up (HOMEWORK.md) and testing guide (TESTING.md)
+✅ **Demo Video** - Ready to record (see TESTING.md for instructions)
 
+### General
 ✅ **Code Well-Commented** - Clean, modular architecture
-
 ✅ **GitHub Repository** - All code available and organized
-
-✅ **ZIP File Ready** - Complete package for submission
 
 ## 🎯 Project Overview
 
@@ -35,12 +36,21 @@ This homework demonstrates advanced multi-agent orchestration using CrewAI as re
 
 ### 🔥 Key Features
 
+#### Text-Based Features (HW1-HW3)
 - **4-Step Marketing Pipeline**: Philosopher → Architect → Optimizer → Architect (Final)
 - **Visual T-Shirt Designs**: Generates detailed graphic designs for DTG front-print
 - **Complete Marketing Package**: T-shirts, social media content, SEO-optimized blogs
 - **Intelligent Context Passing**: Each agent builds on previous work
 - **Structured Output**: Organized folders with final and intermediary outputs
 - **Web Search Integration**: Uses Serper API for real-time trend analysis
+
+#### Voice Features (HW4 - NEW!)
+- **🎤 Voice Input**: Speak your topics via microphone with auto-silence detection
+- **🔊 Voice Output**: Each agent speaks in a unique voice (3 distinct voices via Kokoro TTS)
+- **🎙️ Podcast Mode**: Multi-agent discussions where agents debate and build on each other's ideas
+- **🗣️ Real-time STT**: OpenAI Whisper API transcribes speech to text accurately
+- **🎵 Multi-Voice TTS**: Philosopher, Architect, and Optimizer each have personality-matched voices
+- **📝 Transcript Saving**: All podcast discussions saved as markdown files
 
 ## 🤖 The Marketing Crew
 
@@ -70,7 +80,9 @@ This homework demonstrates advanced multi-agent orchestration using CrewAI as re
 ### Prerequisites
 - Python 3.9 or higher
 - OpenRouter API key ([Get one here](https://openrouter.ai))
-- Serper API key ([Get one here](https://serper.dev))
+- Serper API key ([Get one here](https://serper.dev)) - for web search
+- **NEW (HW4):** OpenAI API key ([Get one here](https://platform.openai.com/api-keys)) - for Whisper STT
+- **NEW (HW4):** PortAudio installed (`brew install portaudio` on macOS) - for microphone access
 
 ### Installation
 
@@ -91,22 +103,67 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. **Configure API Keys**
+4. **Install PortAudio (for voice features)**
+```bash
+# macOS
+brew install portaudio
+
+# Linux (Ubuntu/Debian)
+sudo apt-get install portaudio19-dev
+
+# Windows
+# PortAudio is included with Python packages
+```
+
+5. **Configure API Keys**
 ```bash
 cp .env.example .env
 # Edit .env and add your keys:
 # OPENROUTER_API_KEY=your_key_here
-# SERPER_API_KEY=your_key_here
+# OPENAI_API_KEY=your_openai_key_here  # NEW for HW4
 ```
 
-5. **Run the digital twin**
+6. **Run the digital twin**
 ```bash
+# Text-based mode
 python main.py
+
+# Voice-based mode (NEW HW4!)
+python main.py voice-chat
 ```
 
-## 💻 Usage - Homework Test Commands
+## 💻 Usage
 
-### Required Test Prompts (from homework)
+### 🎙️ Voice Commands (HW4 - NEW!)
+
+```bash
+# Voice-enabled podcast discussion
+python main.py voice-chat
+# → Speak your topic via microphone
+# → Agents discuss in their unique voices
+# → Transcript saved to outputs/
+
+# Voice chat with text topic (skip voice input)
+python main.py voice-chat --topic "AI and creativity"
+# → Agents discuss the provided topic
+# → Each agent speaks in their unique voice
+
+# Test microphone
+python main.py test-mic
+# → Records 3 seconds of audio
+# → Verifies microphone is working
+
+# Test TTS voices
+python main.py test-voices
+# → Each agent speaks a test phrase
+# → Hear all three unique voices
+```
+
+**📖 For detailed testing instructions, see [TESTING.md](TESTING.md)**
+
+**📚 For technical write-up, see [HOMEWORK.md](HOMEWORK.md)**
+
+### Required Test Prompts (from HW1-HW3)
 
 ```bash
 # HOMEWORK TEST 1: "introduce yourself to the class"
