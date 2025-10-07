@@ -38,6 +38,20 @@ class Config:
     # Output Configuration
     OUTPUT_DIR: str = "outputs"
 
+    # Voice Configuration (HW4)
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")  # For Whisper STT
+
+    # Kokoro TTS Voice IDs for each agent
+    KOKORO_VOICE_PHILOSOPHER: str = os.getenv("KOKORO_VOICE_PHILOSOPHER", "af_sky")
+    KOKORO_VOICE_ARCHITECT: str = os.getenv("KOKORO_VOICE_ARCHITECT", "am_adam")
+    KOKORO_VOICE_OPTIMIZER: str = os.getenv("KOKORO_VOICE_OPTIMIZER", "bf_emma")
+
+    # Audio Configuration
+    AUDIO_SAMPLE_RATE: int = 24000  # 24kHz for Kokoro
+    AUDIO_CHANNELS: int = 1  # Mono
+    RECORDING_SILENCE_THRESHOLD: float = 0.01  # Silence detection threshold
+    RECORDING_SILENCE_DURATION: float = 2.0  # Seconds of silence to stop recording
+
     @classmethod
     def validate(cls) -> bool:
         """Validate that required configuration is present."""
