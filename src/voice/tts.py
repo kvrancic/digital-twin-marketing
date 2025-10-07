@@ -1,30 +1,41 @@
 """
-Text-to-Speech using Kokoro TTS.
+Text-to-Speech using Edge TTS (Microsoft).
 Converts text to speech with different voice options.
 """
 
+import asyncio
+import edge_tts
 import numpy as np
+import soundfile as sf
 import tempfile
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from config import Config
 
-try:
-    from kokoro_onnx import Kokoro
-except ImportError:
-    Kokoro = None
 
+class EdgeTTS:
+    """Text-to-speech using Microsoft Edge TTS with multiple voice options."""
 
-class KokoroTTS:
-    """Text-to-speech using Kokoro TTS with multiple voice options."""
-
-    # Available voices in Kokoro
+    # Available voices in Edge TTS (English only for simplicity)
     AVAILABLE_VOICES = {
-        'af_sky': 'Deep contemplative female voice',
-        'af_bella': 'Analytical female voice',
-        'af_sarah': 'Clear female voice',
-        'am_adam': 'Dry sardonic male voice',
+        'af_sky': 'en-US-AvaNeural',  # Warm, conversational female
+        'af_bella': 'en-US-JennyNeural',  # Clear, analytical female
+        'af_sarah': 'en-GB-SoniaNeural',  # British female
+        'am_adam': 'en-US-GuyNeural',  # Conversational male
+        'am_michael': 'en-US-DavisNeural',  # Professional male
+        'bf_emma': 'en-GB-MaisieNeural',  # British female (child-like but clear)
+        'bf_isabella': 'en-GB-LibbyNeural',  # Expressive British female
+        'bm_george': 'en-GB-RyanNeural',  # British male
+        'bm_lewis': 'en-GB-ThomasNeural',  # British male
+    }
+
+    # Reverse mapping for voice descriptions
+    VOICE_DESCRIPTIONS = {
+        'af_sky': 'Warm conversational female voice',
+        'af_bella': 'Clear analytical female voice',
+        'af_sarah': 'British female voice',
+        'am_adam': 'Conversational male voice',
         'am_michael': 'Professional male voice',
         'bf_emma': 'British female voice',
         'bf_isabella': 'Expressive British female voice',
@@ -33,19 +44,8 @@ class KokoroTTS:
     }
 
     def __init__(self):
-        """Initialize Kokoro TTS engine."""
-        if Kokoro is None:
-            raise ImportError(
-                "Kokoro TTS not installed! "
-                "Install with: pip install kokoro-onnx"
-            )
-
-        try:
-            # Initialize Kokoro model
-            self.engine = Kokoro()
-            self.sample_rate = Config.AUDIO_SAMPLE_RATE
-        except Exception as e:
-            raise RuntimeError(f"Failed to initialize Kokoro TTS: {str(e)}")
+        """Initialize Edge TTS engine."""
+        self.sample_rate = Config.AUDIO_SAMPLE_RATE
 
     def synthesize(self, text: str, voice: str = 'af_sky', speed: float = 1.0) -> np.ndarray:
         """
@@ -66,18 +66,63 @@ class KokoroTTS:
             )
 
         try:
-            # Generate audio using Kokoro
-            audio, _ = self.engine.create(
-                text=text,
-                voice=voice,
-                speed=speed,
-                lang='en-us'
-            )
+            # Map to Edge TTS voice
+            edge_voice = self.AVAILABLE_VOICES[voice]
+
+            # Generate audio using Edge TTS (async)
+            audio_file = self._synthesize_sync(text, edge_voice, speed)
+
+            # Load audio file
+            audio, sr = sf.read(audio_file)
+
+            # Clean up temp file
+            os.remove(audio_file)
+
+            # Resample if needed (Edge TTS outputs at different rates)
+            if sr != self.sample_rate:
+                import scipy.signal as sps
+                num_samples = int(len(audio) * self.sample_rate / sr)
+                audio = sps.resample(audio, num_samples)
 
             return audio
 
         except Exception as e:
-            raise RuntimeError(f"Kokoro synthesis failed: {str(e)}")
+            raise RuntimeError(f"Edge TTS synthesis failed: {str(e)}")
+
+    def _synthesize_sync(self, text: str, voice: str, rate: float) -> str:
+        """
+        Synchronous wrapper for async Edge TTS synthesis.
+
+        Args:
+            text: Text to synthesize
+            voice: Edge TTS voice name
+            rate: Speech rate (1.0 = normal)
+
+        Returns:
+            Path to temporary audio file
+        """
+        # Create temp file
+        fd, temp_path = tempfile.mkstemp(suffix='.mp3')
+        os.close(fd)
+
+        # Convert rate to Edge TTS format (+/- percentage)
+        rate_str = f"+{int((rate - 1.0) * 100)}%" if rate >= 1.0 else f"{int((rate - 1.0) * 100)}%"
+
+        # Run async synthesis in sync context
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        loop.run_until_complete(self._async_synthesize(text, voice, rate_str, temp_path))
+
+        return temp_path
+
+    async def _async_synthesize(self, text: str, voice: str, rate: str, output_path: str):
+        """Async Edge TTS synthesis."""
+        communicate = edge_tts.Communicate(text, voice, rate=rate)
+        await communicate.save(output_path)
 
     def synthesize_to_file(self, text: str, voice: str = 'af_sky',
                           output_path: str = None, speed: float = 1.0) -> str:
@@ -142,10 +187,11 @@ class KokoroTTS:
     @staticmethod
     def list_voices():
         """Print available voices with descriptions."""
-        print("Available Kokoro TTS Voices:")
+        print("Available Edge TTS Voices:")
         print("-" * 50)
-        for voice_id, description in KokoroTTS.AVAILABLE_VOICES.items():
-            print(f"  {voice_id:20} - {description}")
+        for voice_id, description in EdgeTTS.VOICE_DESCRIPTIONS.items():
+            edge_voice = EdgeTTS.AVAILABLE_VOICES[voice_id]
+            print(f"  {voice_id:20} - {description:35} ({edge_voice})")
 
     @staticmethod
     def test_voice(voice: str = 'af_sky', text: str = None):
@@ -157,13 +203,13 @@ class KokoroTTS:
             text: Text to speak (default: agent introduction)
         """
         if text is None:
-            text = "Hello! This is a test of the Kokoro text-to-speech system."
+            text = "Hello! This is a test of the Edge text-to-speech system."
 
         print(f"Testing voice: {voice}")
         print(f"Text: {text}")
 
         try:
-            tts = KokoroTTS()
+            tts = EdgeTTS()
             audio = tts.synthesize(text, voice)
 
             # Play audio

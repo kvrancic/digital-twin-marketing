@@ -26,7 +26,8 @@ numpy>=1.26.0
 
 # Voice capabilities (HW4)
 openai>=1.0.0  # Whisper STT API
-kokoro-onnx>=0.3.0  # Kokoro TTS
+edge-tts>=6.1.9  # Edge TTS (Microsoft)
 sounddevice>=0.4.6  # Microphone recording
 soundfile>=0.12.1  # Audio file handling
 pydub>=0.25.1  # Audio processing
+scipy>=1.11.0  # Audio resampling

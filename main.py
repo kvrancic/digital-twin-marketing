@@ -29,7 +29,7 @@ console = Console()
 try:
     from src.voice.audio_utils import AudioRecorder, AudioPlayer
     from src.voice.stt import WhisperSTT
-    from src.voice.tts import KokoroTTS
+    from src.voice.tts import EdgeTTS
     from src.voice.podcast_orchestrator import PodcastOrchestrator
     VOICE_AVAILABLE = True
 except ImportError as e:
@@ -479,13 +479,13 @@ def test_voices(voice: Optional[str]):
         return
 
     try:
-        tts = KokoroTTS()
+        tts = EdgeTTS()
 
         if voice:
             # Test specific voice
-            test_text = "Hello! This is a test of the Kokoro text-to-speech system."
+            test_text = "Hello! This is a test of the Edge text-to-speech system."
             console.print(f"[cyan]Testing voice: {voice}[/cyan]")
-            KokoroTTS.test_voice(voice, test_text)
+            EdgeTTS.test_voice(voice, test_text)
         else:
             # Test all agent voices
             console.print("[cyan]Testing voices for each agent...[/cyan]\n")

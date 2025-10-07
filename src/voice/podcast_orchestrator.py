@@ -13,7 +13,7 @@ from src.agents.philosopher import ZeitgeistPhilosopher
 from src.agents.architect import CynicalContentArchitect
 from src.agents.optimizer import BrutalistOptimizer
 from src.tasks.podcast_tasks import PodcastTasks
-from .tts import KokoroTTS
+from .tts import EdgeTTS
 from .audio_utils import AudioPlayer
 from config import Config
 
@@ -44,7 +44,7 @@ class PodcastOrchestrator:
 
         # Voice synthesis
         try:
-            self.tts = KokoroTTS()
+            self.tts = EdgeTTS()
             self.player = AudioPlayer()
             self.voice_enabled = True
         except Exception as e:
