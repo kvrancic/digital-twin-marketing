@@ -6,6 +6,88 @@
 
 ---
 
+## Quick Start
+
+### Prerequisites
+- Python 3.9 or higher
+- OpenRouter API key ([Get one here](https://openrouter.ai))
+- Serper API key ([Get one here](https://serper.dev))
+- **OpenAI API key** ([Get one here](https://platform.openai.com/api-keys)) - for Whisper STT
+- **PortAudio installed** (`brew install portaudio` on macOS) - for microphone access
+
+### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/karlovrancic/digital-twin.git
+cd digital-twin
+
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install PortAudio (macOS)
+brew install portaudio
+
+# Configure API keys
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY and OPENROUTER_API_KEY
+```
+
+### Voice Commands
+
+```bash
+# Automated podcast (agents discuss among themselves)
+python main.py voice-chat
+python main.py voice-chat --topic "AI and creativity"
+
+# Interactive podcast (you participate in the discussion!)
+python main.py voice-chat --interactive
+python main.py voice-chat --interactive --topic "AI ethics"
+
+# Test your setup
+python main.py test-mic       # Test microphone
+python main.py test-voices    # Test TTS voices
+```
+
+**For detailed testing instructions, see [TESTING.md](TESTING.md)**
+
+### What Each Voice Command Does
+
+**`python main.py test-mic`**
+- Records 3 seconds of audio from your microphone
+- Plays it back to verify recording works
+- Confirms microphone is properly configured
+
+**`python main.py test-voices`**
+- Each agent speaks a test phrase in their unique voice
+- Philosopher: `en-US-AvaNeural` (warm, conversational female)
+- Architect: `en-US-GuyNeural` (casual, engaging male)
+- Optimizer: `en-GB-MaisieNeural` (analytical British female)
+- Verifies TTS system is working
+
+**`python main.py voice-chat`**
+- Automated podcast mode: agents discuss among themselves
+- You provide topic (voice or text)
+- Three agents engage in spoken discussion
+- Transcript saved to `outputs/podcast_[topic].md`
+
+**`python main.py voice-chat --interactive`**
+- Interactive mode: you participate in the discussion
+- Choose who speaks next (you or any agent)
+- Contribute via voice input (press Enter to stop)
+- Full conversation saved with your contributions
+
+**`python main.py voice-chat --topic "text"`**
+- Skip voice input for topic
+- Provide topic as command-line argument
+- Works with both automated and interactive modes
+
+---
+
 ## 1. Implementation Overview
 
 This project extends my previous Digital Twin (HW1-HW3) with voice interaction capabilities, enabling speech-to-text input and text-to-speech output. The system now supports a **podcast-style discussion mode** where three distinct AI agents (Zeitgeist Philosopher, Cynical Content Architect, and Brutalist Optimizer) engage in spoken conversations, each with their own unique voice.
@@ -232,62 +314,146 @@ Each agent provides a final thought that synthesizes the discussion.
 
 ---
 
-### Example 2: Interactive Podcast (NEW!)
+### Example 2: Interactive Podcast - Full Walkthrough
 
 **Command Used:**
 ```bash
 python main.py voice-chat --interactive --topic "AI ethics"
 ```
 
-### What Happened:
+### Complete Conversation Flow:
 
-**Step 1: Menu Appears**
+**Step 1: Topic Input**
 ```
+🎙️  Speak your topic, or type it (press Enter to speak):
+[User speaks: "AI ethics"]
+✓ Transcribed: "AI ethics"
+
+Starting interactive podcast on: AI ethics
+```
+
+**Step 2: Menu Appears**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Who speaks next?
-  [1] You (voice input)
+  [1] 👤 You (voice input)
   [2] 🧐 Zeitgeist Philosopher
   [3] ✍️ Cynical Content Architect
   [4] 📊 Brutalist Optimizer
-  [5] End discussion
-Choose (1-5):
+  [5] 🔚 End discussion
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Choose (1-5): 2
 ```
 
-**Step 2: User Chooses to Speak (1)**
+**Step 3: Philosopher Opens the Discussion**
 ```
+⏳ 🧐 Zeitgeist Philosopher is thinking...
+🔊 Speaking...
+
+🧐 Zeitgeist Philosopher:
+  Oh wonderful, another discussion about AI ethics. Let me guess - we'll debate whether
+  machines can be "moral" while ignoring that humans have been delegating moral
+  responsibility to systems for centuries. The stock market is an algorithm that decides
+  who eats. Credit scores determine life outcomes. We've been living with algorithmic
+  ethics forever; we just called it "the economy." The real ethical question isn't
+  whether AI can be good - it's whether we'll use it as another excuse to avoid
+  accountability.
+```
+
+**Step 4: User Responds (Choice 1)**
+```
+Choose (1-5): 1
+
 🎙️  Recording... Press ENTER when done speaking.
-[User speaks: "I think AI ethics should prioritize transparency over efficiency"]
+[User speaks their response]
 ✓ Recording stopped.
 🔄 Transcribing...
 
-👤 You (Karlo):
-  I think AI ethics should prioritize transparency over efficiency
+👤 You:
+  That's a fair point, but I think transparency is still important. If we don't
+  understand how AI systems make decisions, how can we hold anyone accountable?
 ```
 
-**Step 3: User Chooses Philosopher (2)**
+**Step 5: User Calls on Optimizer (Choice 4)**
 ```
-⏳ 🧐 Zeitgeist Philosopher is thinking...
+Choose (1-5): 4
 
-🧐 Zeitgeist Philosopher:
-  Ah, the classic Silicon Valley false dichotomy. As if transparency and efficiency
-  are opposing forces rather than complementary design choices. The real question
-  isn't which to prioritize - it's who benefits from the opacity.
-```
-
-**Step 4: User Chooses Optimizer (4)**
-```
 ⏳ 📊 Brutalist Optimizer is thinking...
+🔊 Speaking...
 
 📊 Brutalist Optimizer:
-  From a conversion perspective, transparency reduces trust friction by 68%. The
-  efficiency argument is a red herring - optimal systems are inherently transparent
-  because hidden processes create debugging overhead.
+  Your accountability argument assumes transparency equals comprehensibility. False.
+  Neural networks with billions of parameters are transparent in theory - all weights
+  are accessible - yet incomprehensible in practice. What you want isn't transparency;
+  it's interpretability. And interpretability has a cost: accuracy drops 12-15% when
+  you constrain models to human-understandable decision trees. So the real question
+  becomes: do you want a system you understand that's wrong more often, or one that's
+  accurate but opaque?
 ```
 
-**Step 5: Conversation Continues...**
+**Step 6: User Calls on Architect (Choice 3)**
+```
+Choose (1-5): 3
 
-User can continue choosing speakers, contributing via voice, until choosing [5] to end.
+⏳ ✍️ Cynical Content Architect is thinking...
+🔊 Speaking...
 
-**Output:** Full transcript saved to `outputs/interactive_podcast_ai_ethics.md` including all user contributions
+✍️ Cynical Content Architect:
+  And here's where both of you miss the point. Transparency isn't about understanding -
+  it's about trust theater. Companies will publish 50-page "ethics frameworks" that
+  say absolutely nothing while their models optimize for engagement, which is just
+  a euphemism for addiction. The real ethical framework is simple: who profits, who
+  pays, and who gets hurt? Everything else is just LinkedIn virtue signaling.
+```
+
+**Step 7: User Adds Final Thoughts**
+```
+Choose (1-5): 1
+
+🎙️  Recording... Press ENTER when done speaking.
+[User speaks]
+✓ Recording stopped.
+🔄 Transcribing...
+
+👤 You:
+  So what you're all saying is that we're asking the wrong questions about AI ethics.
+  Instead of "is this system good," we should ask "who benefits from this system" and
+  "who bears the risk?"
+```
+
+**Step 8: User Ends Discussion**
+```
+Choose (1-5): 5
+
+✓ Discussion ended!
+💾 Saving transcript...
+📝 Transcript saved to: outputs/interactive_podcast_ai_ethics.md
+```
+
+**Final Output:**
+The complete transcript includes all contributions from you and the agents, showing:
+- Timestamp of discussion
+- Each speaker's contributions in order
+- Full conversation flow
+- Formatted markdown for easy reading
+
+### Key Features Demonstrated:
+
+1. **User Control**: You decide who speaks next (including yourself)
+2. **Voice Input**: Speak naturally, press Enter to stop recording
+3. **Real-time Transcription**: Whisper transcribes your speech accurately
+4. **Agent Responses**: Each agent responds to the previous speaker's points
+5. **Natural Flow**: Conversation builds on itself rather than repeating
+6. **Distinct Voices**: Each agent has a unique neural voice (heard when played)
+7. **Complete Record**: Full transcript saved with all contributions
+
+### Why Interactive Mode is Valuable:
+
+- **Active Participation**: You're not just listening - you're part of the discussion
+- **Directed Conversation**: Guide the discussion by choosing which agent responds
+- **Challenge Ideas**: Question agents directly and hear their responses
+- **Learning Tool**: Explore topics by steering conversation in interesting directions
+- **Personalized**: Your contributions shape how agents respond
 
 ---
 
@@ -482,24 +648,37 @@ while not ended:
 git clone https://github.com/karlovrancic/digital-twin.git
 cd digital-twin
 
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
 # Install dependencies
 pip install -r requirements.txt
-brew install portaudio  # macOS only
+
+# Install PortAudio
+brew install portaudio  # macOS
+# sudo apt-get install portaudio19-dev  # Linux
 
 # Configure API keys
 cp .env.example .env
-# Edit .env and add OPENAI_API_KEY
+# Edit .env and add:
+#   OPENAI_API_KEY=your_key_here
+#   OPENROUTER_API_KEY=your_key_here
 
-# Test voice features
-python main.py test-mic
-python main.py test-voices
+# Test your setup
+python main.py test-mic      # Test microphone recording
+python main.py test-voices   # Test all three agent voices
 
-# Run automated podcast mode (agents only)
+# Run automated podcast mode (agents discuss)
+python main.py voice-chat
 python main.py voice-chat --topic "your topic here"
 
 # Run interactive podcast mode (you participate!)
+python main.py voice-chat --interactive
 python main.py voice-chat --interactive --topic "your topic here"
 ```
+
+**For comprehensive testing guide, see [TESTING.md](TESTING.md)**
 
 ---
 
